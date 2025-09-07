@@ -42,13 +42,12 @@ public class Faction implements Runnable {
 
             int partsCollectedToday = 0;
             while (partsCollectedToday < MAX_PARTS_PER_DAY) {
-                boolean collected = factory.collectOnePart(name);
-                if (!collected) { break; }
+                String partType = factory.takePart();
+                if (partType == null){
+                    break;
+                }
 
                 partsCollectedToday++;
-
-                String[] partTypes = {"head", "torso", "hand", "feet"};
-                String partType = partTypes[random.nextInt(partTypes.length)];
                 parts.put(partType, parts.get(partType) + 1);
 
                 Thread.sleep(random.nextInt(150) + 30);

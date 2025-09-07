@@ -1,5 +1,7 @@
 package factory;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.concurrent.CountDownLatch;
 import java.util.Random;
 import java.util.concurrent.locks.Lock;
@@ -12,7 +14,8 @@ public class Factory {
 
     private CountDownLatch factoryLatch;
     private CountDownLatch factionsLatch;
-    private int availableParts = 0;
+    private Deque<String> partsDeque = new ArrayDeque<>();
+    private final String[] partTypes = {"head", "torso", "hand", "feet"};
 
     public void setLatches(CountDownLatch factoryLatch, CountDownLatch factionsLatch) {
         this.factoryLatch = factoryLatch;
@@ -21,19 +24,22 @@ public class Factory {
 
     public void runDay() {
         try {
-            availableParts = random.nextInt(MAX_PARTS_PER_DAY) + 1;
+            int partsToProduce = random.nextInt(MAX_PARTS_PER_DAY) + 1;
 
-            for (int i = 0; i < availableParts; i++) {
+            for (int i = 0; i < partsToProduce; i++) {
                 Thread.sleep(20);
+
+                String partType = partTypes[random.nextInt(partTypes.length)];
+                partsDeque.add(partType);
             }
 
-            System.out.println(STR."Factory: Production completed. Produced \{availableParts} parts");
+            System.out.println(STR."Factory: Production completed. Produced \{partsToProduce} parts");
             factoryLatch.countDown();
 
             factionsLatch.await();
 
-            if (availableParts > 0) {
-                System.out.println(STR."ERROR: \{availableParts} parts left in factory! This shouldn't happen.");
+            if (!partsDeque.isEmpty()) {
+                System.out.println(STR."ERROR: \{partsToProduce} parts left in factory! This shouldn't happen.");
             }
 
         } catch (InterruptedException e) {
@@ -41,15 +47,14 @@ public class Factory {
         }
     }
 
-    public boolean collectOnePart(String factionName) {
+    public String takePart() {
         lock.lock();
         try {
-            if (availableParts <= 0) {
-                return false;
+            if (partsDeque.isEmpty()) {
+                return null;
             }
 
-            availableParts--;
-            return true;
+            return partsDeque.removeFirst();
 
         } finally {
             lock.unlock();
