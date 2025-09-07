@@ -1,10 +1,9 @@
 package metricAnalysis;
 
-import datastructure.customer.Customer;
-import datastructure.fullfillOrdersList.FullfillOrdersList;
-import datastructure.order.Order;
-import datastructure.orderItem.OrderItem;
-import datastructure.orderStatus.OrderStatus;
+import datastructure.Customer;
+import datastructure.Order;
+import datastructure.OrderItem;
+import datastructure.OrderStatus;
 
 import java.util.List;
 import java.util.Map;

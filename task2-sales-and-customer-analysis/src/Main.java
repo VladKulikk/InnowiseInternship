@@ -1,5 +1,5 @@
-import datastructure.fullfillOrdersList.FullfillOrdersList;
-import datastructure.order.Order;
+import datastructure.fullfillingOrdersList.FullfillOrdersList;
+import datastructure.Order;
 import metricAnalysis.MetricAnalysis;
 
 import java.util.List;

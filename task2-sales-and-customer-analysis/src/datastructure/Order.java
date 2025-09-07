@@ -1,8 +1,4 @@
-package datastructure.order;
-
-import datastructure.customer.Customer;
-import datastructure.orderItem.OrderItem;
-import datastructure.orderStatus.OrderStatus;
+package datastructure;
 
 import java.time.LocalDateTime;
 import java.util.List;

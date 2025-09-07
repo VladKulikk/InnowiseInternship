@@ -1,4 +1,4 @@
-package datastructure.customer;
+package datastructure;
 
 import java.time.LocalDateTime;
 

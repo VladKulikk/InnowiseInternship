@@ -1,10 +1,10 @@
-package datastructure.fullfillOrdersList;
+package datastructure.fullfillingOrdersList;
 
-import datastructure.category.Category;
-import datastructure.customer.Customer;
-import datastructure.order.Order;
-import datastructure.orderItem.OrderItem;
-import datastructure.orderStatus.OrderStatus;
+import datastructure.Category;
+import datastructure.Customer;
+import datastructure.Order;
+import datastructure.OrderItem;
+import datastructure.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;

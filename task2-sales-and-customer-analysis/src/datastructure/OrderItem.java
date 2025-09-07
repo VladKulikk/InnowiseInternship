@@ -1,6 +1,4 @@
-package datastructure.orderItem;
-
-import datastructure.category.Category;
+package datastructure;
 
 public class OrderItem {
     private String productName;

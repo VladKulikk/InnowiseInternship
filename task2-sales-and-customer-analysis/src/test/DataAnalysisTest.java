@@ -1,8 +1,8 @@
 package test;
 
-import datastructure.customer.Customer;
-import datastructure.fullfillOrdersList.FullfillOrdersList;
-import datastructure.order.Order;
+import datastructure.Customer;
+import datastructure.fullfillingOrdersList.FullfillOrdersList;
+import datastructure.Order;
 import metricAnalysis.MetricAnalysis;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
