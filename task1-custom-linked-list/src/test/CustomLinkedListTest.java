@@ -1,6 +1,7 @@
 package test;
 
 import customLinkedList.CustomLinkedList;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,8 +16,8 @@ public class CustomLinkedListTest {
         list.addFirst(Integer.valueOf(2));
 
         assertEquals(2, list.size());
-        assertEquals(Integer.valueOf(2), list.getFirst().data);
-        assertEquals(Integer.valueOf(1), list.getLast().data);
+        assertEquals(Integer.valueOf(2), list.getFirst().getData());
+        assertEquals(Integer.valueOf(1), list.getLast().getData());
     }
 
     @Test
@@ -25,20 +26,21 @@ public class CustomLinkedListTest {
         list.addLast(Integer.valueOf(10));
 
         assertEquals(2, list.size());
-        assertEquals(Integer.valueOf(5), list.getFirst().data);
-        assertEquals(Integer.valueOf(10), list.getLast().data);
+        assertEquals(Integer.valueOf(5), list.getFirst().getData());
+        assertEquals(Integer.valueOf(10), list.getLast().getData());
     }
 
     @Test
+    @DisplayName("Test for adding element by index ")
     public void testAddAtIndex() {
         list.addLast(Integer.valueOf(1));
         list.addLast(Integer.valueOf(3));
         list.add(1, Integer.valueOf(2));
 
         assertEquals(3, list.size());
-        assertEquals(Integer.valueOf(1), list.get(0).data);
-        assertEquals(Integer.valueOf(2), list.get(1).data);
-        assertEquals(Integer.valueOf(3), list.get(2).data);
+        assertEquals(Integer.valueOf(1), list.get(0).getData());
+        assertEquals(Integer.valueOf(2), list.get(1).getData());
+        assertEquals(Integer.valueOf(3), list.get(2).getData());
     }
 
     @Test
@@ -47,7 +49,7 @@ public class CustomLinkedListTest {
         list.addLast(Integer.valueOf(200));
         list.addLast(Integer.valueOf(300));
 
-        assertEquals(Integer.valueOf(200), list.get(1).data);
+        assertEquals(Integer.valueOf(200), list.get(1).getData());
     }
 
     @Test
@@ -58,7 +60,7 @@ public class CustomLinkedListTest {
         list.removeFirst();
 
         assertEquals(1, list.size());
-        assertEquals(Integer.valueOf(20), list.getFirst().data);
+        assertEquals(Integer.valueOf(20), list.getFirst().getData());
     }
 
     @Test
@@ -70,7 +72,7 @@ public class CustomLinkedListTest {
         list.removeLast();
 
         assertEquals(2, list.size());
-        assertEquals(Integer.valueOf(20), list.getLast().data);
+        assertEquals(Integer.valueOf(20), list.getLast().getData());
     }
 
     @Test
@@ -82,6 +84,6 @@ public class CustomLinkedListTest {
         list.remove(1);
 
         assertEquals(2, list.size());
-        assertEquals(Integer.valueOf(30), list.get(1).data);
+        assertEquals(Integer.valueOf(30), list.get(1).getData());
     }
 }

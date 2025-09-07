@@ -25,7 +25,7 @@ public class CustomLinkedList<T> {
             this.tail = newNode;
         }
         else{
-            newNode.next = head;
+            newNode.setNext(head);
             head = newNode;
         }
         this.size++;
@@ -39,7 +39,7 @@ public class CustomLinkedList<T> {
             this.tail = newNode;
         }
         else{
-            tail.next = newNode;
+            tail.setNext(newNode);
             tail = newNode;
         }
         size++;
@@ -53,11 +53,11 @@ public class CustomLinkedList<T> {
         Node<T> temp = head;
         for (int i = 0; i < index; i++) {
             if (i == index - 1){
-                newNode.next = temp.next;
-                temp.next = newNode;
+                newNode.setNext(temp.getNext());
+                temp.setNext(newNode);
                 break;
             }
-            temp = temp.next;
+            temp = temp.getNext();
         }
         size++;
     }
@@ -77,14 +77,14 @@ public class CustomLinkedList<T> {
         Node <T> temp = head;
         int i = 0;
         while(i < index){
-            temp = temp.next;
+            temp = temp.getNext();
             i++;
         }
         return temp;
     }
 
     public void removeFirst(){
-        this.head = this.head.next;
+        this.head = this.head.getNext();
         size--;
     }
 
@@ -95,11 +95,11 @@ public class CustomLinkedList<T> {
         }
         else{
             Node<T> temp = this.head;
-            while(temp.next != tail){
-                temp = temp.next;
+            while(temp.getNext() != tail){
+                temp = temp.getNext();
             }
             tail = temp;
-            tail.next = null;
+            tail.setNext(null);
         }
         size--;
     }
@@ -111,18 +111,18 @@ public class CustomLinkedList<T> {
         Node<T> temp = head;
         for (int i = 0; i < index; i++) {
             if (i == index - 1){
-                temp.next = temp.next.next;
+                temp.setNext(temp.getNext().getNext());
                 size--;
             }
-            temp = temp.next;
+            temp = temp.getNext();
         }
     }
 
     public void show() {
         var cursor = this.head;
         while (cursor != null) {
-            System.out.println(cursor.data);
-            cursor = cursor.next;
+            System.out.println(cursor.getData());
+            cursor = cursor.getNext();
         }
     }
 }
