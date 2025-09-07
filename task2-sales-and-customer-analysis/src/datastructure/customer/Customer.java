@@ -43,4 +43,22 @@ public class Customer {
     public String getCustomerId() {
         return customerId;
     }
+
+    public boolean equals(Object o){
+        if (this == o){
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()){
+            return false;
+        }
+
+        Customer customer = (Customer) o;
+
+        return customerId != null ? customerId.equals(customer.customerId) : customer.customerId == null;
+    }
+
+    public int hashCode(){
+        return customerId != null ? customerId.hashCode() : 0;
+    }
 }

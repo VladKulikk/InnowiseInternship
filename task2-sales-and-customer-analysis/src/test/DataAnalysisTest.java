@@ -1,3 +1,5 @@
+package test;
+
 import datastructure.customer.Customer;
 import datastructure.fullfillOrdersList.FullfillOrdersList;
 import datastructure.order.Order;
@@ -15,12 +17,11 @@ public class DataAnalysisTest {
     @BeforeAll
     public static void setUp(){
         orders = FullfillOrdersList.createOrders();
-        MetricAnalysis.orders = orders;
     }
 
     @Test
     public void testUniqueCities(){
-        List<String> uniqueCities = MetricAnalysis.getUniqueCities();
+        List<String> uniqueCities = MetricAnalysis.getUniqueCities(orders);
         assertNotNull(uniqueCities);
         assertTrue(uniqueCities.contains("New York"));
         assertTrue(uniqueCities.contains("Los Angeles"));
@@ -29,7 +30,7 @@ public class DataAnalysisTest {
 
     @Test
     public void testShowTotalIncome(){
-        double income = MetricAnalysis.showTotalIncome();
+        double income = MetricAnalysis.showTotalIncome(orders);
         assertTrue(income > 0);
         // Laptop(1200) + Book(60) + Phone(1600) + Sofa(700) + Phone(1600) + Laptop(1200) + ToyCar(40) + Novel(15) +
         // Jeans(50) + T-shirt(60) + ToyCar(40) + Book(60)+ T-shirt(60) + ToyCar(40) + Book(60) + T-shirt(60) + ToyCar(40)
@@ -39,21 +40,21 @@ public class DataAnalysisTest {
 
     @Test
     public void testShowMostPopularProduct(){
-        String product = MetricAnalysis.showMostPopularProduct();
+        String product = MetricAnalysis.showMostPopularProduct(orders);
         assertNotNull(product);
         assertEquals("Toy Car", product);
     }
 
     @Test
     public void testDeliverOrdersCheck(){
-        double avgCheck = MetricAnalysis.deliveredOrdersCheck();
+        double avgCheck = MetricAnalysis.deliveredOrdersCheck(orders);
         assertTrue(avgCheck > 0);
         assertEquals(969.2857, avgCheck, 0.001);
     }
 
     @Test
     public void testGetCustomerWIthFiveMoreOrders(){
-        List<Customer> customers = MetricAnalysis.getCustomersWithFiveMoreOrders();
+        List<Customer> customers = MetricAnalysis.getCustomersWithFiveMoreOrders(orders);
         assertEquals(1, customers.size());
         assertEquals("Eve", customers.getFirst().getName());
     }
