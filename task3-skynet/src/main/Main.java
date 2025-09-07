@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Main {
     private static final int DAYS = 100;
 
-    public static void main() {
+    public static void main(String[] args) {
         Factory factory = new Factory();
         AtomicInteger dayCounter = new AtomicInteger(0);
 
