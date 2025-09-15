@@ -10,7 +10,7 @@ services:
       - POSTGRES_PASSWORD=123456  # The password you'll use in your app
       - POSTGRES_DB=userdb       # The database name for the user service
     ports:
-      - "5432:5432" # Maps the container's port 5432 to your local machine's port 5432
+      - "5433:5432" # Maps the container's port 5432 to your local machine's port 5433
     volumes:
       - postgres-data:/var/lib/postgresql/data # This makes sure your data isn't lost when you stop the container
 
