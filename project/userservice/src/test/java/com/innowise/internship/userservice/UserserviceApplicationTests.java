@@ -1,4 +1,4 @@
-package com.innowise.internship.project.userservice;
+package com.innowise.internship.userservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

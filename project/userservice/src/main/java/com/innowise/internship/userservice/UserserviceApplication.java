@@ -1,4 +1,4 @@
-package com.innowise.internship.project.userservice;
+package com.innowise.internship.userservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
