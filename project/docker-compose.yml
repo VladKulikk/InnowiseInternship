@@ -6,9 +6,9 @@ services:
     image: postgres:15-alpine # Official Postgres image
     container_name: postgres-db-container
     environment:
-      - POSTGRES_USER=myuser      # The username you'll use in your app
+      - POSTGRES_USER=admin      # The username you'll use in your app
       - POSTGRES_PASSWORD=123456  # The password you'll use in your app
-      - POSTGRES_DB=user_db       # The database name for the user service
+      - POSTGRES_DB=userdb       # The database name for the user service
     ports:
       - "5432:5432" # Maps the container's port 5432 to your local machine's port 5432
     volumes:
