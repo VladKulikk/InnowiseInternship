@@ -3,11 +3,11 @@ version: '3.8'
 services:
   # Defines the PostgreSQL service
   postgres-db:
-    image: postgres:15-alpine # Use the official Postgres image
+    image: postgres:15-alpine # Official Postgres image
     container_name: postgres-db-container
     environment:
       - POSTGRES_USER=myuser      # The username you'll use in your app
-      - POSTGRES_PASSWORD=mypass  # The password you'll use in your app
+      - POSTGRES_PASSWORD=123456  # The password you'll use in your app
       - POSTGRES_DB=user_db       # The database name for the user service
     ports:
       - "5432:5432" # Maps the container's port 5432 to your local machine's port 5432
