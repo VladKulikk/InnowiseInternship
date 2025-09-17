@@ -35,7 +35,7 @@ public class User {
   private LocalDate birth_date;
 
   @Email(message = "Please provide a valid email address")
-  @Column(unique = true)
+  @Column(nullable = false, unique = true)
   private String email;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
