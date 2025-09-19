@@ -9,8 +9,8 @@ public interface CardInfoService {
     CardInfoResponseDto addCartToUser(AddCartRequestDto requestDto);
     CardInfoResponseDto getCardInfoById(Long id);
     List<CardInfoResponseDto> getAllCardsInfo();
-    List<CardInfoResponseDto> getAllCardsInfoByIds(List<Long> ids);
-    List<CardInfoResponseDto> getAllCardsInfoByUserId(Long id);
+    List<CardInfoResponseDto> getCardsInfoByIds(List<Long> ids);
+    List<CardInfoResponseDto> getCardsInfoByUserId(Long id);
     CardInfoResponseDto updateCardInfo(Long id, AddCartRequestDto requestDto);
     void deleteCard(Long id);
 }

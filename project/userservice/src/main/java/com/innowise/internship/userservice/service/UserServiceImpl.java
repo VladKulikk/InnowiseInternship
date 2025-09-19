@@ -2,6 +2,8 @@ package com.innowise.internship.userservice.service;
 
 import com.innowise.internship.userservice.dto.CreateUserRequestDto;
 import com.innowise.internship.userservice.dto.UserResponseDto;
+import com.innowise.internship.userservice.exception.DuplicateResourseException;
+import com.innowise.internship.userservice.exception.ResourceNotFoundException;
 import com.innowise.internship.userservice.mapper.UserMapper;
 import com.innowise.internship.userservice.model.User;
 import com.innowise.internship.userservice.repository.UserRepository;
@@ -25,7 +27,7 @@ public class UserServiceImpl implements UserService{
     public UserResponseDto createUser(CreateUserRequestDto requestDto) {
 
         if (userRepository.findByEmail(requestDto.getEmail()).isPresent()) {
-            throw new IllegalStateException("User with email" + requestDto.getEmail() + " already exists");
+            throw new DuplicateResourseException("User with email" + requestDto.getEmail() + " already exists");
         }
 
         User user = userMapper.toEntity(requestDto);
@@ -56,7 +58,9 @@ public class UserServiceImpl implements UserService{
 
     @Transactional(readOnly = true)
     public UserResponseDto getUserByEmail(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalStateException("User with email" + email + " not found"));
+    User user = userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("User with email" + email + " not found"));
 
         return userMapper.toDto(user);
     }
@@ -65,6 +69,12 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserResponseDto updateUser(Long id, CreateUserRequestDto requestDto) {
         User existingUser = findUserOrThrow(id);
+
+        userRepository.findByEmail(requestDto.getEmail()).ifPresent(user -> {
+            if(!user.getId().equals(id)) {
+                throw new DuplicateResourseException("Email " +  requestDto.getEmail() + " already taken by another user");
+            }
+        });
 
         existingUser.setName(requestDto.getName());
         existingUser.setSurname(requestDto.getSurname());
@@ -82,6 +92,8 @@ public class UserServiceImpl implements UserService{
     }
 
     private User findUserOrThrow(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new IllegalStateException("User with id " + id + " not found"));
+    return userRepository
+        .findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
     }
 }
