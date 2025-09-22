@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
         userRepository
             .findByEmail(email)
             .orElseThrow(
-                () -> new ResourceNotFoundException("User with email" + email + " not found"));
+                () -> new ResourceNotFoundException("User with email " + email + " not found"));
 
     return userMapper.toDto(user);
   }

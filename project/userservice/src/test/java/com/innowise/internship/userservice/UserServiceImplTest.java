@@ -8,7 +8,6 @@ import com.innowise.internship.userservice.mapper.UserMapper;
 import com.innowise.internship.userservice.model.User;
 import com.innowise.internship.userservice.repository.UserRepository;
 import com.innowise.internship.userservice.service.UserServiceImpl;
-import liquibase.exception.DuplicateChangeSetException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

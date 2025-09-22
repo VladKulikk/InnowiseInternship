@@ -111,13 +111,14 @@ public class CardInfoServiceImpl implements CardInfoService {
   @Transactional
   @CacheEvict(
       value = "cardsByUser",
-      key = "#root.target.findCardOrThrow(#cardId).getUser().getId()")
+      key = "#root.target.findCardOrThrow(#id).getUser().getId()",
+      beforeInvocation = true)
   @Override
   public void deleteCard(Long id) {
     cardInfoRepository.delete(findCardOrThrow(id));
   }
 
-  private CardInfo findCardOrThrow(Long id) {
+  public CardInfo findCardOrThrow(Long id) {
     return cardInfoRepository
         .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Card with " + id + " id is not found"));

@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
         new ErrorResponse(
             LocalDateTime.now(),
             HttpStatus.CONFLICT.value(),
-            "Duplicate resourse",
+            "Duplicate resource",
             ex.getMessage(),
             request.getRequestURI());
 
