@@ -2,7 +2,7 @@ package com.innowise.internship.userservice.service;
 
 import com.innowise.internship.userservice.dto.AddCartRequestDto;
 import com.innowise.internship.userservice.dto.CardInfoResponseDto;
-import com.innowise.internship.userservice.exception.DuplicateResourseException;
+import com.innowise.internship.userservice.exception.DuplicateResourceException;
 import com.innowise.internship.userservice.exception.ResourceNotFoundException;
 import com.innowise.internship.userservice.mapper.CardInfoMapper;
 import com.innowise.internship.userservice.model.CardInfo;
@@ -10,6 +10,8 @@ import com.innowise.internship.userservice.model.User;
 import com.innowise.internship.userservice.repository.CardInfoRepository;
 import com.innowise.internship.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,89 +22,104 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CardInfoServiceImpl implements CardInfoService {
 
-    private final CardInfoRepository cardInfoRepository;
-    private final UserRepository userRepository;
-    private final CardInfoMapper cardInfoMapper;
+  private final CardInfoRepository cardInfoRepository;
+  private final UserRepository userRepository;
+  private final CardInfoMapper cardInfoMapper;
 
-    @Transactional
-    @Override
-    public CardInfoResponseDto addCartToUser(AddCartRequestDto requestDto) {
+  @Transactional
+  // clears the old list of cards from cash when we added new card
+  @CacheEvict(value = "cardsByUser", key = "#requestDto.userId")
+  @Override
+  public CardInfoResponseDto addCartToUser(AddCartRequestDto requestDto) {
 
-        cardInfoRepository.findByNumber(requestDto.getNumber()).ifPresent(card -> {
-            throw new DuplicateResourseException("Card number not found");
-        });
+    cardInfoRepository
+        .findByNumber(requestDto.getNumber())
+        .ifPresent(
+            card -> {
+              throw new DuplicateResourceException("Card number not found");
+            });
 
-        User user = userRepository
+    User user =
+        userRepository
             .findById(requestDto.getUserId())
-            .orElseThrow(() -> new ResourceNotFoundException("User with " + requestDto.getUserId() + " id is not found"));
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException(
+                        "User with " + requestDto.getUserId() + " id is not found"));
 
-        CardInfo newCard = cardInfoMapper.toEntity(requestDto);
-        newCard.setUser(user);
+    CardInfo newCard = cardInfoMapper.toEntity(requestDto);
+    newCard.setUser(user);
 
-        CardInfo savedCard = cardInfoRepository.save(newCard);
+    CardInfo savedCard = cardInfoRepository.save(newCard);
 
-        return cardInfoMapper.toDto(savedCard);
-    }
+    return cardInfoMapper.toDto(savedCard);
+  }
 
-    @Transactional(readOnly = true)
-    @Override
-    public CardInfoResponseDto getCardInfoById(Long id) {
-        return cardInfoMapper.toDto(findCardOrThrow(id));
-    }
+  @Transactional(readOnly = true)
+  @Override
+  public CardInfoResponseDto getCardInfoById(Long id) {
+    return cardInfoMapper.toDto(findCardOrThrow(id));
+  }
 
-    @Transactional(readOnly = true)
-    @Override
-    public List<CardInfoResponseDto> getAllCardsInfo() {
-        return cardInfoRepository.findAll().stream().map(cardInfoMapper::toDto).collect(Collectors.toList());
-    }
+  @Transactional(readOnly = true)
+  @Override
+  public List<CardInfoResponseDto> getCardsInfoByIds(List<Long> ids) {
+    return cardInfoRepository.findAllByIdIn(ids).stream()
+        .map(cardInfoMapper::toDto)
+        .collect(Collectors.toList());
+  }
 
-    @Transactional(readOnly = true)
-    @Override
-    public List<CardInfoResponseDto> getCardsInfoByIds(List<Long> ids) {
-        return cardInfoRepository.findAllByIdIn(ids).stream().map(cardInfoMapper::toDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<CardInfoResponseDto> getCardsInfoByUserId(Long userId) {
+  @Transactional(readOnly = true)
+  @Cacheable(value = "cardsByUser", key = "#userId")
+  @Override
+  public List<CardInfoResponseDto> getCardsInfoByUserId(Long userId) {
 
     if (!userRepository.existsById(userId)) {
       throw new ResourceNotFoundException("User with " + userId + " id is not found");
     }
 
-      return cardInfoRepository.findByUser_Id(userId).stream()
-          .map(cardInfoMapper::toDto)
-          .collect(Collectors.toList());
-    }
+    return cardInfoRepository.findByUser_Id(userId).stream()
+        .map(cardInfoMapper::toDto)
+        .collect(Collectors.toList());
+  }
 
-    @Transactional
-    @Override
-    public CardInfoResponseDto updateCardInfo(Long id, AddCartRequestDto requestDto) {
-        CardInfo existingCard = findCardOrThrow(id);
+  @Transactional
+  @CacheEvict(value = "cardsByUser", key = "#root.target.findCardOrThrow(#id).getUser().getId()")
+  @Override
+  public CardInfoResponseDto updateCardInfo(Long id, AddCartRequestDto requestDto) {
+    CardInfo existingCard = findCardOrThrow(id);
 
-        cardInfoRepository.findByNumber(requestDto.getNumber()).ifPresent(card -> {
-            if(!card.getId().equals(id)){
-                throw new DuplicateResourseException("Card with number " + requestDto.getNumber() + " already exists");
-            }
-        });
+    cardInfoRepository
+        .findByNumber(requestDto.getNumber())
+        .ifPresent(
+            card -> {
+              if (!card.getId().equals(id)) {
+                throw new DuplicateResourceException(
+                    "Card with number " + requestDto.getNumber() + " already exists");
+              }
+            });
 
-        existingCard.setNumber(requestDto.getNumber());
-        existingCard.setHolder(requestDto.getHolder());
-        existingCard.setExpirationDate(requestDto.getExpirationDate());
+    existingCard.setNumber(requestDto.getNumber());
+    existingCard.setHolder(requestDto.getHolder());
+    existingCard.setExpirationDate(requestDto.getExpirationDate());
 
-        CardInfo updatedCard = cardInfoRepository.save(existingCard);
+    CardInfo updatedCard = cardInfoRepository.save(existingCard);
 
-        return cardInfoMapper.toDto(updatedCard);
-    }
+    return cardInfoMapper.toDto(updatedCard);
+  }
 
-    @Transactional
-    @Override
-    public void deleteCard(Long id) {
-        cardInfoRepository.delete(findCardOrThrow(id));
-    }
+  @Transactional
+  @CacheEvict(
+      value = "cardsByUser",
+      key = "#root.target.findCardOrThrow(#cardId).getUser().getId()")
+  @Override
+  public void deleteCard(Long id) {
+    cardInfoRepository.delete(findCardOrThrow(id));
+  }
 
-    private CardInfo findCardOrThrow(Long id) {
+  private CardInfo findCardOrThrow(Long id) {
     return cardInfoRepository
         .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Card with " + id + " id is not found"));
-    }
+  }
 }

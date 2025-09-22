@@ -6,11 +6,15 @@ import com.innowise.internship.userservice.dto.UserResponseDto;
 import java.util.List;
 
 public interface UserService {
-    UserResponseDto createUser (CreateUserRequestDto requestDto);
-    UserResponseDto getUserById (Long id);
-    List<UserResponseDto> getAllUsers();
-    List<UserResponseDto> getUsersByIds(List<Long> ids);
-    UserResponseDto getUserByEmail (String email);
-    UserResponseDto updateUser(Long id, CreateUserRequestDto requestDto);
-    void deleteUser(Long id);
+  UserResponseDto createUser(CreateUserRequestDto requestDto);
+
+  UserResponseDto getUserById(Long id);
+
+  List<UserResponseDto> getUsersByIds(List<Long> ids);
+
+  UserResponseDto getUserByEmail(String email);
+
+  UserResponseDto updateUser(Long id, CreateUserRequestDto requestDto);
+
+  void deleteUser(Long id);
 }

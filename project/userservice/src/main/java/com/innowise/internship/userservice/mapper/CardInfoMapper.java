@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface CardInfoMapper {
 
-    CardInfoResponseDto toDto (CardInfo cardInfo);
+  CardInfoResponseDto toDto(CardInfo cardInfo);
 
-    CardInfo toEntity(AddCartRequestDto addCartRequestDto);
+  CardInfo toEntity(AddCartRequestDto addCartRequestDto);
 }

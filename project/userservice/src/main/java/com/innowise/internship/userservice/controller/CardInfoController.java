@@ -24,43 +24,39 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CardInfoController {
 
-    private final CardInfoService cardInfoService;
+  private final CardInfoService cardInfoService;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public CardInfoResponseDto addCard(@Valid @RequestBody AddCartRequestDto requestDto) {
-        return cardInfoService.addCartToUser(requestDto);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public CardInfoResponseDto addCard(@Valid @RequestBody AddCartRequestDto requestDto) {
+    return cardInfoService.addCartToUser(requestDto);
+  }
 
-    @GetMapping("/{id}")
-    public CardInfoResponseDto getCardById(@PathVariable Long id) {
-        return cardInfoService.getCardInfoById(id);
-    }
+  @GetMapping("/{id}")
+  public CardInfoResponseDto getCardById(@PathVariable Long id) {
+    return cardInfoService.getCardInfoById(id);
+  }
 
-    // Example URL: /api/v1/cards?userId=1
-    @GetMapping(params = "userId")
-    public List<CardInfoResponseDto> getCardsByUserId(@RequestParam Long userId) {
-        return cardInfoService.getCardsInfoByUserId(userId);
-    }
+  // Example URL: /api/v1/cards?userId=1
+  @GetMapping(params = "userId")
+  public List<CardInfoResponseDto> getCardsByUserId(@RequestParam Long userId) {
+    return cardInfoService.getCardsInfoByUserId(userId);
+  }
 
-    @GetMapping
-    public List<CardInfoResponseDto> getAllCards() {
-        return cardInfoService.getAllCardsInfo();
-    }
+  @GetMapping
+  public List<CardInfoResponseDto> getCardsByIds(@RequestParam List<Long> ids) {
+    return cardInfoService.getCardsInfoByIds(ids);
+  }
 
-    @GetMapping
-    public List<CardInfoResponseDto> getCardsByIds(@RequestParam List<Long> ids) {
-        return cardInfoService.getCardsInfoByIds(ids);
-    }
+  @PutMapping("/{id}")
+  public CardInfoResponseDto updateCard(
+      @PathVariable Long id, @Valid @RequestBody AddCartRequestDto requestDto) {
+    return cardInfoService.updateCardInfo(id, requestDto);
+  }
 
-    @PutMapping("/{id}")
-    public CardInfoResponseDto updateCard(@PathVariable Long id, @Valid @RequestBody AddCartRequestDto requestDto) {
-        return cardInfoService.updateCardInfo(id, requestDto);
-    }
-
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCard(@PathVariable Long id) {
-        cardInfoService.deleteCard(id);
-    }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteCard(@PathVariable Long id) {
+    cardInfoService.deleteCard(id);
+  }
 }

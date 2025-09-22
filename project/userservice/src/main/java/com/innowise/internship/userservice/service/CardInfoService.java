@@ -6,11 +6,15 @@ import com.innowise.internship.userservice.dto.CardInfoResponseDto;
 import java.util.List;
 
 public interface CardInfoService {
-    CardInfoResponseDto addCartToUser(AddCartRequestDto requestDto);
-    CardInfoResponseDto getCardInfoById(Long id);
-    List<CardInfoResponseDto> getAllCardsInfo();
-    List<CardInfoResponseDto> getCardsInfoByIds(List<Long> ids);
-    List<CardInfoResponseDto> getCardsInfoByUserId(Long id);
-    CardInfoResponseDto updateCardInfo(Long id, AddCartRequestDto requestDto);
-    void deleteCard(Long id);
+  CardInfoResponseDto addCartToUser(AddCartRequestDto requestDto);
+
+  CardInfoResponseDto getCardInfoById(Long id);
+
+  List<CardInfoResponseDto> getCardsInfoByIds(List<Long> ids);
+
+  List<CardInfoResponseDto> getCardsInfoByUserId(Long id);
+
+  CardInfoResponseDto updateCardInfo(Long id, AddCartRequestDto requestDto);
+
+  void deleteCard(Long id);
 }

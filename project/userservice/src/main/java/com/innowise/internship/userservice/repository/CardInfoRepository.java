@@ -10,10 +10,10 @@ import java.util.Optional;
 
 public interface CardInfoRepository extends JpaRepository<CardInfo, Long> {
 
-    @Query(value = "SELECT * FROM card_info WHERE id in (:ids)", nativeQuery = true)
-    List<CardInfo> findAllByIdIn(@Param("ids") List<Long> ids);
+  @Query(value = "SELECT * FROM card_info WHERE id in (:ids)", nativeQuery = true)
+  List<CardInfo> findAllByIdIn(@Param("ids") List<Long> ids);
 
-    Optional<CardInfo> findByNumber(String number);
+  Optional<CardInfo> findByNumber(String number);
 
-    Optional<CardInfo> findByUser_Id(Long userId);
+  List<CardInfo> findByUser_Id(Long userId);
 }
