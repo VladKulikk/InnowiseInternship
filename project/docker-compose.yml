@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  userservice:
+    container_name: userservice-container
+    build:
+      context: ./project/userservice # Path to dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres-db # Wait for the database to be ready before starting
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/userdb
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=123456
+      - SPRING_DATA_REDIS_HOST=redis-cache
+      - SPRING_DATA_REDIS_PORT=6379
+
+  # Defines the PostgreSQL service
+  postgres-db:
+    image: postgres:15-alpine # Official Postgres image
+    container_name: postgres-db-container
+    environment:
+      - POSTGRES_USER=admin      # The username you'll use in your app
+      - POSTGRES_PASSWORD=123456  # The password you'll use in your app
+      - POSTGRES_DB=userdb       # The database name for the user service
+    ports:
+      - "5433:5432" # Maps the container's port 5432 to your local machine's port 5433
+    volumes:
+      - postgres-data:/var/lib/postgresql/data # This makes sure your data isn't lost when you stop the container
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: redis-cache-container
+    ports:
+      - "6379:6379"
+
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: zookeeper-container
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  kafka-broker:
+    image: bitnami/kafka:latest
+    container_name: kafka-broker-container
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181 # Tells Kafka how to find Zookeeper
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-broker:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper # Makes sure Zookeeper starts before Kafka
+
+volumes:
+  postgres-data: # Defines the volume for data persistence
