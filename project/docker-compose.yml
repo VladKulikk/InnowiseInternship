@@ -4,7 +4,7 @@ services:
   userservice:
     container_name: userservice-container
     build:
-      context: ./project/userservice # Path to dockerfile
+      context: ./userservice # Path to dockerfile
       dockerfile: Dockerfile
     ports:
       - "8081:8080"
