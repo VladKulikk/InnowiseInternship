@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-entity-indexes
+      author: admin
+      changes:
+        - createIndex:
+            indexName: idx_users_email
+            tableName: users
+            columns:
+              - column:
+                  name: email
+
+        - createIndex:
+            indexName: idx_users_surname_name
+            tableName: users
+            columns:
+              - column:
+                  name: surname
+              - column:
+                  name: name
+
+        - createIndex:
+            indexName: idx_card_info_user_id
+            tableName: card_info
+            columns:
+              - column:
+                  name: user_id

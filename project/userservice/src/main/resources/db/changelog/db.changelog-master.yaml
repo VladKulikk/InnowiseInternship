@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - include:
+      file: 001-create-users-table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 002-create-card-info-table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 003-add-entity-indexes.yaml
+      relativeToChangelogFile: true
