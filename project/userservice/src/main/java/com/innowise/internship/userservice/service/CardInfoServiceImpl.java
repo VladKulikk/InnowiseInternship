@@ -8,7 +8,6 @@ import com.innowise.internship.userservice.mapper.CardInfoMapper;
 import com.innowise.internship.userservice.model.CardInfo;
 import com.innowise.internship.userservice.model.User;
 import com.innowise.internship.userservice.repository.CardInfoRepository;
-import com.innowise.internship.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -23,14 +22,14 @@ import java.util.stream.Collectors;
 public class CardInfoServiceImpl implements CardInfoService {
 
   private final CardInfoRepository cardInfoRepository;
-  private final UserRepository userRepository;
+  private final UserService userService;
   private final CardInfoMapper cardInfoMapper;
 
   @Transactional
   // clears the old list of cards from cash when we added new card
   @CacheEvict(value = "cardsByUser", key = "#requestDto.userId")
   @Override
-  public CardInfoResponseDto addCartToUser(AddCartRequestDto requestDto) {
+  public CardInfoResponseDto addCardToUser(AddCartRequestDto requestDto) {
 
     cardInfoRepository
         .findByNumber(requestDto.getNumber())
@@ -39,13 +38,7 @@ public class CardInfoServiceImpl implements CardInfoService {
               throw new DuplicateResourceException("Card number not found");
             });
 
-    User user =
-        userRepository
-            .findById(requestDto.getUserId())
-            .orElseThrow(
-                () ->
-                    new ResourceNotFoundException(
-                        "User with " + requestDto.getUserId() + " id is not found"));
+    User user = userService.findUserEntityById(requestDto.getUserId());
 
     CardInfo newCard = cardInfoMapper.toEntity(requestDto);
     newCard.setUser(user);
@@ -74,9 +67,8 @@ public class CardInfoServiceImpl implements CardInfoService {
   @Override
   public List<CardInfoResponseDto> getCardsInfoByUserId(Long userId) {
 
-    if (!userRepository.existsById(userId)) {
-      throw new ResourceNotFoundException("User with " + userId + " id is not found");
-    }
+    // if user does not exist, then throws ResourceNotFoundException
+    userService.getUserById(userId);
 
     return cardInfoRepository.findByUser_Id(userId).stream()
         .map(cardInfoMapper::toDto)

@@ -6,6 +6,7 @@ import com.innowise.internship.userservice.service.CardInfoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,9 +28,10 @@ public class CardInfoController {
   private final CardInfoService cardInfoService;
 
   @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public CardInfoResponseDto addCard(@Valid @RequestBody AddCartRequestDto requestDto) {
-    return cardInfoService.addCartToUser(requestDto);
+  public ResponseEntity<CardInfoResponseDto> addCard(
+      @Valid @RequestBody AddCartRequestDto requestDto) {
+    CardInfoResponseDto newCardDto = cardInfoService.addCardToUser(requestDto);
+    return ResponseEntity.status(HttpStatus.CREATED).body(newCardDto);
   }
 
   @GetMapping("/{id}")

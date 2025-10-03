@@ -98,7 +98,12 @@ public class UserServiceImpl implements UserService {
     userRepository.delete(findUserOrThrow(id));
   }
 
-  private User findUserOrThrow(Long id) {
+    @Override
+    public User findUserEntityById(Long id) {
+        return findUserOrThrow(id);
+    }
+
+    private User findUserOrThrow(Long id) {
     return userRepository
         .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));

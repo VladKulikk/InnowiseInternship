@@ -9,15 +9,8 @@ import com.innowise.internship.userservice.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,21 +23,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
-@Testcontainers
-public class CardInfoControllerIntegrationTest {
 
-  @Container
-  static PostgreSQLContainer<?> postgreSQLContainer =
-      new PostgreSQLContainer<>("postgres:15-alpine");
-
-  @DynamicPropertySource
-  static void configureProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
-    registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
-    registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
-  }
+public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
 
   @Autowired private MockMvc mockMvc;
 
@@ -90,7 +70,7 @@ public class CardInfoControllerIntegrationTest {
         .andExpect(status().isNotFound())
         .andExpect(
             jsonPath("$.message")
-                .value("User with " + requestDto.getUserId() + " id is not found"));
+                .value("User with id " + requestDto.getUserId() + " not found"));
   }
 
   @Test
@@ -139,7 +119,7 @@ public class CardInfoControllerIntegrationTest {
     mockMvc
         .perform(get("/api/v1/cards?userId={userId}", userId))
         .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("User with " + userId + " id is not found"));
+        .andExpect(jsonPath("$.message").value("User with id " + userId + " not found"));
   }
 
   @Test

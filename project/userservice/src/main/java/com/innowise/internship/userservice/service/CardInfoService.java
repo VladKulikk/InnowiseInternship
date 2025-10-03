@@ -6,7 +6,7 @@ import com.innowise.internship.userservice.dto.CardInfoResponseDto;
 import java.util.List;
 
 public interface CardInfoService {
-  CardInfoResponseDto addCartToUser(AddCartRequestDto requestDto);
+  CardInfoResponseDto addCardToUser(AddCartRequestDto requestDto);
 
   CardInfoResponseDto getCardInfoById(Long id);
 

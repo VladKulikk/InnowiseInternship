@@ -76,7 +76,7 @@ public class CardInfoServiceImplTest {
     when(cardInfoRepository.save(cardToSave)).thenReturn(savedCard);
     when(cardInfoMapper.toDto(savedCard)).thenReturn(expectedDto);
 
-    CardInfoResponseDto actualDto = cardInfoService.addCartToUser(requestDto);
+    CardInfoResponseDto actualDto = cardInfoService.addCardToUser(requestDto);
 
     assertThat(actualDto).isEqualTo(expectedDto);
     verify(cardInfoRepository).save(cardToSave);
@@ -90,7 +90,7 @@ public class CardInfoServiceImplTest {
     when(cardInfoRepository.findByNumber(requestDto.getNumber()))
         .thenReturn(Optional.of(new CardInfo()));
 
-    assertThrows(DuplicateResourceException.class, () -> cardInfoService.addCartToUser(requestDto));
+    assertThrows(DuplicateResourceException.class, () -> cardInfoService.addCardToUser(requestDto));
 
     verify(userRepository, never()).findById(any());
     verify(userRepository, never()).save(any());

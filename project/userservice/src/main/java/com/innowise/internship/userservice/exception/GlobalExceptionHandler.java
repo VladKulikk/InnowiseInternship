@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler {
 
   // Handler for custom exception
+  // This handler also processes situations with deleting non-existent users from db with 404 error
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
       ResourceNotFoundException ex, HttpServletRequest request) {
@@ -30,7 +31,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(DuplicateResourceException.class)
   public ResponseEntity<ErrorResponse> handleDuplicateResourseException(
-          DuplicateResourceException ex, HttpServletRequest request) {
+      DuplicateResourceException ex, HttpServletRequest request) {
 
     ErrorResponse errorResponse =
         new ErrorResponse(
