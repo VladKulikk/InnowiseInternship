@@ -4,10 +4,10 @@ import com.innowise.internship.authentificationservice.dto.AuthRequestDto;
 import com.innowise.internship.authentificationservice.dto.AuthResponseDto;
 import com.innowise.internship.authentificationservice.dto.RegisterRequestDto;
 import com.innowise.internship.authentificationservice.dto.UserResponseDto;
+import com.innowise.internship.authentificationservice.exception.DuplicateResourceException;
 import com.innowise.internship.authentificationservice.model.UserCredentials;
 import com.innowise.internship.authentificationservice.repository.UserCredentialsRepository;
 import com.innowise.internship.authentificationservice.security.JwtProvider;
-import com.sun.jdi.request.DuplicateRequestException;
 import jakarta.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void register(RegisterRequestDto requestDto) {
         userCredentialsRepository.findByLogin(requestDto.getLogin()).ifPresent(user -> {
-            throw new DuplicateRequestException("User with login " + requestDto.getLogin() + " already exists");
+            throw new DuplicateResourceException("User with login " + requestDto.getLogin() + " already exists");
         });
 
         // this map represented JSON to userservice
@@ -57,7 +57,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         UserCredentials userCredentials = new UserCredentials();
-        userCredentials.setId(createdUser.getId());
+        userCredentials.setUserId(createdUser.getId());
         userCredentials.setLogin(requestDto.getLogin());
         userCredentials.setPasswordHash(passwordEncoder.encode(requestDto.getPassword()));
 
