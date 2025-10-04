@@ -24,6 +24,7 @@ jobs:
           cache: 'maven' #cashing maven dependencies for faster builds
 
       - name: Build, Test, and Analyze with Maven
+        working-directory: ./project/userservice
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

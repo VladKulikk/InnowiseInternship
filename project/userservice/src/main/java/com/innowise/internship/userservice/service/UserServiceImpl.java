@@ -108,5 +108,4 @@ public class UserServiceImpl implements UserService {
         .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
   }
-
 }
