@@ -20,7 +20,7 @@ public class RegisterRequestDto {
 
     @NotNull(message = "Birth date cannot be empty")
     @Past(message = "Date must be in past")
-    private LocalDate birthDate;
+    private LocalDate birth_date;
 
     @NotBlank(message = "Email cannot be empty")
     @Email(message = "Please provide valid email address")

@@ -39,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
         userCreationPayload.put("name", requestDto.getName());
         userCreationPayload.put("surname", requestDto.getSurname());
         userCreationPayload.put("email", requestDto.getEmail());
-        userCreationPayload.put("birth_date", requestDto.getBirthDate());
+        userCreationPayload.put("birth_date", requestDto.getBirth_date());
 
         UserResponseDto createdUser = webClientBuilder.build()
                 .post()

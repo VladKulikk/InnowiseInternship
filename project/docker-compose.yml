@@ -37,22 +37,6 @@ services:
       - APP_JWT_ACCESS_SECRET=8q65#j^_\H1!kk\&Vl`=g'QdyrSDsZh|Zkcd/£d3F7{3
       - APP_JWT_REFRESH_SECRET=}!1RXF`D6N9_[spZJA_T�|xfWqalr#>5>$HjwMu44lG
 
-  authentificationservice:
-    container_name: authentificationservice-container
-    build:
-      context: ./project/authentificationservice
-      dockerfile: Dockerfile
-    ports:
-      - "8083:8080"
-    depends_on:
-      - postgres-db
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/userdb
-      - SPRING_DATASOURCE_USERNAME=admin
-      - SPRING_DATASOURCE_PASSWORD=123456
-      - SPRING_DATA_REDIS_HOST=redis-cache
-      - SPRING_DATA_REDIS_PORT=6379
-
   # Defines the PostgreSQL service
   postgres-db:
     image: postgres:15-alpine # Official Postgres image
