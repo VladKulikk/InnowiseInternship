@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
 
@@ -48,7 +49,7 @@ public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
 
     mockMvc
         .perform(
-            post("/api/v1/cards")
+            post("/api/v1/cards").with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
         .andExpect(status().isCreated())
@@ -64,6 +65,7 @@ public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
     mockMvc
         .perform(
             post("/api/v1/cards")
+                    .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
         .andExpect(status().isNotFound())
@@ -80,7 +82,7 @@ public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
     CardInfo savedCard = cardInfoRepository.save(card);
 
     mockMvc
-        .perform(get("/api/v1/cards/{id}", savedCard.getId()))
+        .perform(get("/api/v1/cards/{id}", savedCard.getId()).with(jwt()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(savedCard.getId()))
         .andExpect(jsonPath("$.holder").value("SomeHolder"));
@@ -91,7 +93,7 @@ public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
     Long cardId = 99L;
 
     mockMvc
-        .perform(get("/api/v1/cards/{id}", cardId))
+        .perform(get("/api/v1/cards/{id}", cardId).with(jwt()))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Card with " + cardId + " id is not found"));
   }
@@ -105,7 +107,7 @@ public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
     cardInfoRepository.saveAll(List.of(card1, card2));
 
     mockMvc
-        .perform(get("/api/v1/cards?userId={userId}", savedUser.getId()))
+        .perform(get("/api/v1/cards?userId={userId}", savedUser.getId()).with(jwt()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(2));
   }
@@ -115,7 +117,7 @@ public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
     Long userId = 99L;
 
     mockMvc
-        .perform(get("/api/v1/cards?userId={userId}", userId))
+        .perform(get("/api/v1/cards?userId={userId}", userId).with(jwt()))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with id " + userId + " not found"));
   }
@@ -131,7 +133,7 @@ public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
     mockMvc
         .perform(
             get("/api/v1/cards")
-                .param("ids", card1.getId().toString() + "," + card2.getId().toString()))
+                .param("ids", card1.getId().toString() + "," + card2.getId().toString()).with(jwt()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(2))
         .andExpect(jsonPath("$[0].id").value(card1.getId()))
@@ -148,7 +150,7 @@ public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
 
     mockMvc
         .perform(
-            put("/api/v1/cards/{id}", savedCard.getId())
+            put("/api/v1/cards/{id}", savedCard.getId()).with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest)))
         .andExpect(status().isOk())
@@ -164,7 +166,7 @@ public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
 
     mockMvc
         .perform(
-            put("/api/v1/cards/{id}", cardId)
+            put("/api/v1/cards/{id}", cardId).with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest)))
         .andExpect(status().isNotFound());
@@ -178,7 +180,7 @@ public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
     CardInfo savedCard = cardInfoRepository.save(card);
 
     mockMvc
-        .perform(delete("/api/v1/cards/{id}", savedCard.getId()))
+        .perform(delete("/api/v1/cards/{id}", savedCard.getId()).with(jwt()))
         .andExpect(status().isNoContent());
 
     assertThat(cardInfoRepository.findById(savedCard.getId())).isEmpty();
@@ -188,7 +190,8 @@ public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
   public void deleteCard_whenCardDoesNotExist_shouldReturn404() throws Exception {
     Long cardId = 99L;
 
-    mockMvc.perform(delete("/api/v1/cards/{id}", cardId)).andExpect(status().isNotFound());
+    mockMvc.perform(delete("/api/v1/cards/{id}", cardId).with(jwt()))
+            .andExpect(status().isNotFound());
   }
 
   public User initUser() {

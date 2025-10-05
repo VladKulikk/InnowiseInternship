@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 class UserControllerIntegrationTest extends AbstractIntegrationTest {
 
@@ -70,7 +71,7 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
     User savedUser = userRepository.save(initUser("TestEmail@email.com"));
 
     mockMvc
-        .perform(get("/api/v1/users/{id}", savedUser.getId()))
+        .perform(get("/api/v1/users/{id}", savedUser.getId()).with(jwt()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(savedUser.getId()))
         .andExpect(jsonPath("$.email").value("TestEmail@email.com"));
@@ -81,7 +82,7 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
     Long nonExistentUserId = 99L;
 
     mockMvc
-        .perform(get("/api/v1/users/{id}", nonExistentUserId))
+        .perform(get("/api/v1/users/{id}", nonExistentUserId).with(jwt()))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User with id " + nonExistentUserId + " not found"));
   }
@@ -91,7 +92,7 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
     User savedUser = userRepository.save(initUser("TestEmail@email.com"));
 
     mockMvc
-        .perform(get("/api/v1/users/by-email").param("email", "TestEmail@email.com"))
+        .perform(get("/api/v1/users/by-email").with(jwt()).param("email", "TestEmail@email.com"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.email").value(savedUser.getEmail()));
   }
@@ -101,7 +102,7 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
     String nonExistentUserEmail = "nonExistentEmail@email.com";
 
     mockMvc
-        .perform(get("/api/v1/users/by-email").param("email", nonExistentUserEmail))
+        .perform(get("/api/v1/users/by-email").with(jwt()).param("email", nonExistentUserEmail))
         .andExpect(status().isNotFound())
         .andExpect(
             jsonPath("$.message").value("User with email " + nonExistentUserEmail + " not found"));
@@ -115,7 +116,7 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
 
     mockMvc
         .perform(
-            get("/api/v1/users")
+            get("/api/v1/users").with(jwt())
                 .param("ids", user1.getId().toString() + "," + user2.getId().toString()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(2));
@@ -129,7 +130,7 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
 
     mockMvc
         .perform(
-            put("/api/v1/users/{id}", savedUser.getId())
+            put("/api/v1/users/{id}", savedUser.getId()).with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
         .andExpect(status().isOk())
@@ -146,7 +147,7 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
 
     mockMvc
         .perform(
-            put("/api/v1/users/{id}", user1.getId())
+            put("/api/v1/users/{id}", user1.getId()).with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
         .andExpect(status().isConflict());
@@ -157,7 +158,7 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
     User savedUser = userRepository.save(initUser("TestEmail@email.com"));
 
     mockMvc
-        .perform(delete("/api/v1/users/{id}", savedUser.getId()))
+        .perform(delete("/api/v1/users/{id}", savedUser.getId()).with(jwt()))
         .andExpect(status().isNoContent());
 
     assertThat(userRepository.findById(savedUser.getId())).isEmpty();
