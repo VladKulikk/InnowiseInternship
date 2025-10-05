@@ -2,14 +2,15 @@ package com.innowise.internship.userservice;
 
 import com.innowise.internship.userservice.dto.AddCartRequestDto;
 import com.innowise.internship.userservice.dto.CardInfoResponseDto;
+import com.innowise.internship.userservice.dto.UserResponseDto;
 import com.innowise.internship.userservice.exception.DuplicateResourceException;
 import com.innowise.internship.userservice.exception.ResourceNotFoundException;
 import com.innowise.internship.userservice.mapper.CardInfoMapper;
 import com.innowise.internship.userservice.model.CardInfo;
 import com.innowise.internship.userservice.model.User;
 import com.innowise.internship.userservice.repository.CardInfoRepository;
-import com.innowise.internship.userservice.repository.UserRepository;
 import com.innowise.internship.userservice.service.CardInfoServiceImpl;
+import com.innowise.internship.userservice.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -30,7 +31,7 @@ public class CardInfoServiceImplTest {
 
   @Mock private CardInfoRepository cardInfoRepository;
 
-  @Mock private UserRepository userRepository;
+  @Mock private UserService userService;
 
   @Mock private CardInfoMapper cardInfoMapper;
 
@@ -70,7 +71,7 @@ public class CardInfoServiceImplTest {
     CardInfo savedCard = new CardInfo();
     CardInfoResponseDto expectedDto = new CardInfoResponseDto();
 
-    when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+    when(userService.findUserEntityById(1L)).thenReturn(user);
     when(cardInfoRepository.findByNumber(requestDto.getNumber())).thenReturn(Optional.empty());
     when(cardInfoMapper.toEntity(requestDto)).thenReturn(cardToSave);
     when(cardInfoRepository.save(cardToSave)).thenReturn(savedCard);
@@ -92,8 +93,8 @@ public class CardInfoServiceImplTest {
 
     assertThrows(DuplicateResourceException.class, () -> cardInfoService.addCardToUser(requestDto));
 
-    verify(userRepository, never()).findById(any());
-    verify(userRepository, never()).save(any());
+    verify(userService, never()).findUserEntityById(any());
+    verify(cardInfoRepository, never()).save(any());
   }
 
   @Test
@@ -128,7 +129,7 @@ public class CardInfoServiceImplTest {
     long userId = 1L;
     List<CardInfo> cards = List.of(new CardInfo(), new CardInfo());
 
-    when(userRepository.existsById(userId)).thenReturn(true);
+    when(userService.getUserById(userId)).thenReturn(new UserResponseDto());
     when(cardInfoRepository.findByUser_Id(userId)).thenReturn(cards);
 
     List<CardInfoResponseDto> actual = cardInfoService.getCardsInfoByUserId(userId);
@@ -141,7 +142,7 @@ public class CardInfoServiceImplTest {
   @Test
   public void getCardsInfoByUserId_whenUserNotFound_shouldThrowException() {
     long userId = 99L;
-    when(userRepository.existsById(userId)).thenReturn(false);
+    when(userService.getUserById(userId)).thenThrow(new ResourceNotFoundException("User not found"));
 
     assertThrows(
         ResourceNotFoundException.class, () -> cardInfoService.getCardsInfoByUserId(userId));
