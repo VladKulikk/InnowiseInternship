@@ -1,0 +1,3 @@
+CREATE DATABASE userdb;
+
+CREATE DATABASE authdb;

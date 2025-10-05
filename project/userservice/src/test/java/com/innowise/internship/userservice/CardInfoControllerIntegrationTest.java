@@ -23,7 +23,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
 
   @Autowired private MockMvc mockMvc;
@@ -69,8 +68,7 @@ public class CardInfoControllerIntegrationTest extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(requestDto)))
         .andExpect(status().isNotFound())
         .andExpect(
-            jsonPath("$.message")
-                .value("User with id " + requestDto.getUserId() + " not found"));
+            jsonPath("$.message").value("User with id " + requestDto.getUserId() + " not found"));
   }
 
   @Test

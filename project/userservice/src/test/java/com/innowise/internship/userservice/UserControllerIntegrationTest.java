@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class UserControllerIntegrationTest extends AbstractIntegrationTest{
+class UserControllerIntegrationTest extends AbstractIntegrationTest {
 
   @Autowired private MockMvc mockMvc;
 
@@ -32,12 +32,15 @@ public class UserControllerIntegrationTest extends AbstractIntegrationTest{
   // cleaning db before each test
   @BeforeEach
   public void setup() {
+      redis.start();
+      postgreSQLContainer.start();
+
     userRepository.deleteAll();
   }
 
   @Test
   public void createUser_whenDataIsValid_shouldSaveUserAndReturn201() throws Exception {
-    CreateUserRequestDto requestDto = initUserRequestDto("TestName","TestEmail@email.com");
+    CreateUserRequestDto requestDto = initUserRequestDto("TestName", "TestEmail@email.com");
 
     mockMvc
         .perform(
@@ -52,11 +55,14 @@ public class UserControllerIntegrationTest extends AbstractIntegrationTest{
 
   @Test
   public void createUser_whenEmailIsInvalid_shouldReturn400() throws Exception {
-      CreateUserRequestDto requestDto = initUserRequestDto("TestName","notValidEmail");
+    CreateUserRequestDto requestDto = initUserRequestDto("TestName", "notValidEmail");
 
-      mockMvc.perform(
-          post("/api/v1/users").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(requestDto)))
-              .andExpect(status().isBadRequest());
+    mockMvc
+        .perform(
+            post("/api/v1/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -119,7 +125,7 @@ public class UserControllerIntegrationTest extends AbstractIntegrationTest{
   public void updateUser_whenUserExists_shouldUpdateUser() throws Exception {
     User savedUser = userRepository.save(initUser("OldEmail@email.com"));
 
-      CreateUserRequestDto requestDto = initUserRequestDto("NewName","NewEmail@email.com");
+    CreateUserRequestDto requestDto = initUserRequestDto("NewName", "NewEmail@email.com");
 
     mockMvc
         .perform(
@@ -136,11 +142,14 @@ public class UserControllerIntegrationTest extends AbstractIntegrationTest{
     User user1 = userRepository.save(initUser("email@email.com"));
     userRepository.save(initUser("user@email.com"));
 
-    CreateUserRequestDto requestDto = initUserRequestDto("NewName","user@email.com");
+    CreateUserRequestDto requestDto = initUserRequestDto("NewName", "user@email.com");
 
-      mockMvc.perform(
-            put("/api/v1/users/{id}", user1.getId()).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(requestDto)))
-              .andExpect(status().isConflict());
+    mockMvc
+        .perform(
+            put("/api/v1/users/{id}", user1.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+        .andExpect(status().isConflict());
   }
 
   @Test
@@ -154,23 +163,23 @@ public class UserControllerIntegrationTest extends AbstractIntegrationTest{
     assertThat(userRepository.findById(savedUser.getId())).isEmpty();
   }
 
-  public User initUser(String email){
-      User user = new User();
-      user.setName("TestName");
-      user.setSurname("TestSurname");
-      user.setEmail(email);
-      user.setBirth_date(LocalDate.of(1990, 1, 1));
+  public User initUser(String email) {
+    User user = new User();
+    user.setName("TestName");
+    user.setSurname("TestSurname");
+    user.setEmail(email);
+    user.setBirth_date(LocalDate.of(1990, 1, 1));
 
-      return user;
+    return user;
   }
 
-  public CreateUserRequestDto initUserRequestDto(String name, String email){
-      CreateUserRequestDto requestDto = new CreateUserRequestDto();
-      requestDto.setName(name);
-      requestDto.setSurname("TestSurname");
-      requestDto.setEmail(email);
-      requestDto.setBirth_date(LocalDate.of(1990, 1, 1));
+  public CreateUserRequestDto initUserRequestDto(String name, String email) {
+    CreateUserRequestDto requestDto = new CreateUserRequestDto();
+    requestDto.setName(name);
+    requestDto.setSurname("TestSurname");
+    requestDto.setEmail(email);
+    requestDto.setBirth_date(LocalDate.of(1990, 1, 1));
 
-      return requestDto;
+    return requestDto;
   }
 }
