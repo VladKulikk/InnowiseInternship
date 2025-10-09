@@ -1,3 +1,3 @@
-CREATE DATABASE userdb;
-
 CREATE DATABASE authdb;
+
+CREATE DATABASE orderdb;

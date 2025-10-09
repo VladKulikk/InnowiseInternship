@@ -33,6 +33,24 @@ services:
       - SPRING_DATA_REDIS_HOST=redis-cache
       - SPRING_DATA_REDIS_PORT=6379
 
+  orderservice:
+    container_name: orderservice-container
+    build:
+      context: ./orderservice
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8080"
+    depends_on:
+      - postgres-db
+      - userservice
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/orderdb
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=123456
+      - SPRING_DATA_REDIS_HOST=redis-cache
+      - SPRING_DATA_REDIS_PORT=6379
+      - USER_SERVICE_URL=http://userservice:8080/api/v1
+
   # Defines the PostgreSQL service
   postgres-db:
     image: postgres:15-alpine # Official Postgres image
