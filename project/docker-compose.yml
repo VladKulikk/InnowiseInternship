@@ -20,7 +20,7 @@ services:
   authentificationservice:
     container_name: authentificationservice-container
     build:
-      context: ./project/authentificationservice
+      context: ./authentificationservice
       dockerfile: Dockerfile
     ports:
       - "8083:8080"
