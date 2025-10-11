@@ -1,1 +1,3 @@
 CREATE DATABASE authdb;
+
+CREATE DATABASE orderdb;

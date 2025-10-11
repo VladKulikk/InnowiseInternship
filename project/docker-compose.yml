@@ -37,18 +37,36 @@ services:
       - APP_JWT_ACCESS_SECRET=8q65#j^_\H1!kk\&Vl`=g'QdyrSDsZh|Zkcd/£d3F7{3
       - APP_JWT_REFRESH_SECRET=}!1RXF`D6N9_[spZJA_T�|xfWqalr#>5>$HjwMu44lG
 
+  orderservice:
+    container_name: orderservice-container
+    build:
+      context: ./orderservice
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8080"
+    depends_on:
+      - postgres-db
+      - userservice
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/orderdb
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=123456
+      - SPRING_DATA_REDIS_HOST=redis-cache
+      - SPRING_DATA_REDIS_PORT=6379
+      - USER_SERVICE_URL=http://userservice:8080/api/v1
+
   # Defines the PostgreSQL service
   postgres-db:
     image: postgres:15-alpine # Official Postgres image
     container_name: postgres-db-container
     environment:
-      - POSTGRES_USER=admin      # The username you'll use in your app
-      - POSTGRES_PASSWORD=123456  # The password you'll use in your app
+      - POSTGRES_USER=admin      # The username in your app
+      - POSTGRES_PASSWORD=123456  # The password in your app
       - POSTGRES_DB=userdb       # The database name for the user service
     ports:
-      - "5433:5432" # Maps the container's port 5432 to your local machine's port 5433
+      - "5433:5432" # Maps the container's port 5432 to local machine's port 5433
     volumes:
-      - postgres-data:/var/lib/postgresql/data # This makes sure your data isn't lost when you stop the container
+      - postgres-data:/var/lib/postgresql/data # This makes sure data isn't lost when stopping the container
       - ./postgres-init:/docker-entrypoint-initdb.d
 
   redis-cache:

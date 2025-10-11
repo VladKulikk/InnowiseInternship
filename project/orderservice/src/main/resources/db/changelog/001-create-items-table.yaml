@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1-create-items
+      author: admin
+      changes:
+        - createTable:
+            tableName: items
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: price
+                  type: DECIMAL(19,2)
+                  constraints:
+                    nullable: false
+
+        - createIndex:
+            indexName: idx_items_name
+            tableName: items
+            columns:
+              - column:
+                  name: name
