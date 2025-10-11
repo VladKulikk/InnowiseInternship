@@ -12,7 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -33,8 +33,8 @@ public class Order {
     private OrderStatus status;
 
     @Column(nullable = false, updatable = false)
-    private LocalDate creation_date = LocalDate.now();
+    private LocalDateTime creation_date = LocalDateTime.now();
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> OrderItems;
+    private List<OrderItem> orderItems;
 }

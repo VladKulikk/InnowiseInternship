@@ -2,6 +2,7 @@ package com.innowise.internship.orderservice.service.impl;
 
 import com.innowise.internship.orderservice.client.UserServiceClient;
 import com.innowise.internship.orderservice.dto.CreateOrderDto;
+import com.innowise.internship.orderservice.dto.OrderItemDto;
 import com.innowise.internship.orderservice.dto.OrderResponseDto;
 import com.innowise.internship.orderservice.dto.UserResponseDto;
 import com.innowise.internship.orderservice.exception.ResourceNotFoundException;
@@ -109,6 +110,17 @@ public class OrderServiceImpl implements OrderService {
     private OrderResponseDto buildCombinedResponseDto(Order order) {
         UserResponseDto user = userServiceClient.fetchUserById(order.getUser_id(), getAuthToken());
         OrderResponseDto responseDto = orderMapper.toOrderResponseDto(order);
+
+        List<OrderItemDto> orderItemDtos = order.getOrderItems().stream()
+                .map(orderItem -> {
+                    OrderItemDto dto = new OrderItemDto();
+                    dto.setItemId(orderItem.getItem() != null ? orderItem.getItem().getId() : null);
+                    dto.setQuantity(orderItem.getQuantity());
+                    return dto;
+                })
+                .toList();
+
+        responseDto.setOrderItems(orderItemDtos);
         responseDto.setUser(user);
         return responseDto;
     }

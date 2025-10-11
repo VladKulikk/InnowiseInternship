@@ -39,7 +39,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
       Boolean isValid = webClientBuilder.build()
               .get()
-              .uri("/validate?token=" + token)
+              .uri("/validate?accessToken=" + token)
               .retrieve()
               .bodyToMono(Boolean.class)
               .block();

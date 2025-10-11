@@ -22,7 +22,7 @@ public class JwtProvider {
     }
 
     public String generateAccessToken(String login) {
-        final long accessTokenExpirationMs = 15 * 60 * 1000; //15 minutes
+        final long accessTokenExpirationMs = 15 * 60 * 60 * 1000; //15 hours
         final Date now = new Date();
         final Date accessExpiration =  new Date(now.getTime() + accessTokenExpirationMs);
 
