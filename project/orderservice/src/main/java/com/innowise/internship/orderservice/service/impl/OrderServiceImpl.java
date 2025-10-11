@@ -16,6 +16,8 @@ import com.innowise.internship.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponseDto createOrder(CreateOrderDto createOrderDto) {
-        UserResponseDto user = userServiceClient.fetchUserByEmail(createOrderDto.getUserEmail());
+        UserResponseDto user = userServiceClient.fetchUserByEmail(createOrderDto.getUserEmail(), getAuthToken());
 
         Order order = new Order();
         order.setUser_id(user.getId());
@@ -105,9 +107,21 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderResponseDto buildCombinedResponseDto(Order order) {
-        UserResponseDto user = userServiceClient.fetchUserById(order.getUser_id());
+        UserResponseDto user = userServiceClient.fetchUserById(order.getUser_id(), getAuthToken());
         OrderResponseDto responseDto = orderMapper.toOrderResponseDto(order);
         responseDto.setUser(user);
         return responseDto;
+    }
+
+    private String getAuthToken() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            return null;
+        }
+        final String authHeader = attributes.getRequest().getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return null;
+        }
+        return authHeader.substring(7);
     }
 }

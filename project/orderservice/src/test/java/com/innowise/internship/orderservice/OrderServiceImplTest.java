@@ -18,6 +18,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +29,9 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -51,6 +56,8 @@ public class OrderServiceImplTest {
 
     @Test
     public void createOrder_whenDataIsValid_shouldCreateAndReturnOrder() {
+        mockRequestContext();
+
         CreateOrderDto createOrderDto = new CreateOrderDto();
         createOrderDto.setUserEmail("test@example.com");
 
@@ -69,7 +76,7 @@ public class OrderServiceImplTest {
 
         OrderResponseDto expectedOrderResponseDto = new OrderResponseDto();
 
-        when(userServiceClient.fetchUserByEmail("test@example.com")).thenReturn(userResponseDto);
+        when(userServiceClient.fetchUserByEmail(eq("test@example.com"), anyString())).thenReturn(userResponseDto);
         when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
         when(orderMapper.toOrderResponseDto(savedOrder)).thenReturn(expectedOrderResponseDto);
@@ -83,6 +90,8 @@ public class OrderServiceImplTest {
 
     @Test
     public void createOrder_ItemNotFound_shouldThrowException() {
+        mockRequestContext();
+
         CreateOrderDto createOrderDto = new CreateOrderDto();
         createOrderDto.setUserEmail("test@example.com");
 
@@ -94,7 +103,7 @@ public class OrderServiceImplTest {
         UserResponseDto userResponseDto = new UserResponseDto();
         userResponseDto.setId(123L);
 
-        when(userServiceClient.fetchUserByEmail("test@example.com")).thenReturn(userResponseDto);
+        when(userServiceClient.fetchUserByEmail(eq("test@example.com"), anyString())).thenReturn(userResponseDto);
         when(itemRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
@@ -105,6 +114,8 @@ public class OrderServiceImplTest {
 
     @Test
     public void getOrderById_whenOrderExists_shouldReturnOrderResponseDto() {
+        mockRequestContext();
+
         long orderId = 1L;
 
         Order order = new Order();
@@ -115,7 +126,7 @@ public class OrderServiceImplTest {
         OrderResponseDto expectedOrderResponseDto = new OrderResponseDto();
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        when(userServiceClient.fetchUserById(123L)).thenReturn(userResponseDto);
+        when(userServiceClient.fetchUserById(eq(123L), anyString())).thenReturn(new UserResponseDto());
         when(orderMapper.toOrderResponseDto(order)).thenReturn(expectedOrderResponseDto);
 
         OrderResponseDto result = orderService.getOrderById(orderId);
@@ -135,6 +146,8 @@ public class OrderServiceImplTest {
 
     @Test
     public void getOrdersByIds_whenOrderExists_shouldReturnOrderResponseDtoList() {
+        mockRequestContext();
+
         List<Long> ids = List.of(1L, 2L);
 
         Order order1 = new Order();
@@ -144,7 +157,7 @@ public class OrderServiceImplTest {
         List<Order> orders = List.of(order1, order2);
 
         when(orderRepository.findOrdersByIdIn(ids)).thenReturn(orders);
-        when(userServiceClient.fetchUserById(anyLong())).thenReturn(new UserResponseDto());
+        when(userServiceClient.fetchUserById(eq(123L), anyString())).thenReturn(new UserResponseDto());
         when(orderMapper.toOrderResponseDto(any(Order.class))).thenReturn(new OrderResponseDto());
 
         List<OrderResponseDto> result = orderService.getOrdersByIds(ids);
@@ -172,7 +185,7 @@ public class OrderServiceImplTest {
         List<Order> orders = List.of(order1);
 
         when(orderRepository.findOrdersByStatusIn(statuses)).thenReturn(orders);
-        when(userServiceClient.fetchUserById(anyLong())).thenReturn(new UserResponseDto());
+        when(userServiceClient.fetchUserById(eq(123L), anyString())).thenReturn(new UserResponseDto());
         when(orderMapper.toOrderResponseDto(any(Order.class))).thenReturn(new OrderResponseDto());
 
         List<OrderResponseDto> result = orderService.getOrdersByStatuses(statuses);
@@ -189,7 +202,7 @@ public class OrderServiceImplTest {
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
-        when(userServiceClient.fetchUserById(anyLong())).thenReturn(new UserResponseDto());
+        when(userServiceClient.fetchUserById(eq(123L), anyString())).thenReturn(new UserResponseDto());
         when(orderMapper.toOrderResponseDto(any(Order.class))).thenReturn(new OrderResponseDto());
 
         orderService.updateOrderStatus(orderId, OrderStatus.SHIPPED);
@@ -226,5 +239,12 @@ public class OrderServiceImplTest {
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> orderService.deleteOrderById(orderId));
+    }
+
+    private void mockRequestContext(){
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+        when(mockRequest.getHeader("Authorization")).thenReturn("Bearer fake-jwt-token");
+        ServletRequestAttributes attributes = new ServletRequestAttributes(mockRequest);
+        RequestContextHolder.setRequestAttributes(attributes);
     }
 }

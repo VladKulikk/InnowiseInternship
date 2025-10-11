@@ -56,13 +56,13 @@ services:
     image: postgres:15-alpine # Official Postgres image
     container_name: postgres-db-container
     environment:
-      - POSTGRES_USER=admin      # The username you'll use in your app
-      - POSTGRES_PASSWORD=123456  # The password you'll use in your app
+      - POSTGRES_USER=admin      # The username in your app
+      - POSTGRES_PASSWORD=123456  # The password in your app
       - POSTGRES_DB=userdb       # The database name for the user service
     ports:
-      - "5433:5432" # Maps the container's port 5432 to your local machine's port 5433
+      - "5433:5432" # Maps the container's port 5432 to local machine's port 5433
     volumes:
-      - postgres-data:/var/lib/postgresql/data # This makes sure your data isn't lost when you stop the container
+      - postgres-data:/var/lib/postgresql/data # This makes sure data isn't lost when stopping the container
       - ./postgres-init:/docker-entrypoint-initdb.d
 
   redis-cache:

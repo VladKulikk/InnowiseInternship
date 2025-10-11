@@ -16,13 +16,14 @@ public class UserServiceClient {
         this.webClient = webClient;
     }
 
-    public UserResponseDto fetchUserByEmail(String email) {
+    public UserResponseDto fetchUserByEmail(String email, String authToken) {
     return webClient
         .get()
         .uri(uriBuilder -> uriBuilder
                     .path("/api/v1/users/by-email")
                     .queryParam("email", email)
                     .build())
+            .headers(headers -> headers.setBearerAuth(authToken))
         .retrieve()
         .onStatus(
                 HttpStatusCode::is4xxClientError,
@@ -31,10 +32,11 @@ public class UserServiceClient {
         .block();
     }
 
-    public UserResponseDto fetchUserById(Long userId) {
+    public UserResponseDto fetchUserById(Long userId, String authToken) {
         return webClient
                 .get()
                 .uri("/api/v1/users/{id}", userId)
+                .headers(headers -> headers.setBearerAuth(authToken))
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> Mono.error(new ResourceNotFoundException("User not found from UserService with id: " + userId))
