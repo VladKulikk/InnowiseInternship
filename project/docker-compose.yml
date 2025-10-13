@@ -15,12 +15,12 @@ services:
       - SPRING_DATASOURCE_PASSWORD=123456
       - SPRING_DATA_REDIS_HOST=redis-cache
       - SPRING_DATA_REDIS_PORT=6379
-      - AUTH_SERVICE_URL=http://authentificationservice:8080/api/v1/auth
+      - AUTH_SERVICE_URL=http://authenticationservice:8080/api/v1/auth
 
-  authentificationservice:
-    container_name: authentificationservice-container
+  authenticationservice:
+    container_name: authenticationservice-container
     build:
-      context: ./authentificationservice
+      context: ./authenticationservice
       dockerfile: Dockerfile
     ports:
       - "8083:8080"
