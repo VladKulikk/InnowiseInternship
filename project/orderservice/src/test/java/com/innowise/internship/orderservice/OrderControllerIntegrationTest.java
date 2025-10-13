@@ -56,7 +56,7 @@ public class OrderControllerIntegrationTest extends AbstractIntegrationTest{
     public void createOrder_whenDataIsValid_shouldCreateAndReturn201() throws Exception {
         Item savedItem = itemRepository.save(initItem("Test item", "9.99"));
 
-        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/api/v1/users/by-email"))
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/users/by-email"))
                 .withQueryParam("email", equalTo("test@example.com"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -83,7 +83,7 @@ public class OrderControllerIntegrationTest extends AbstractIntegrationTest{
 
     @Test
     public void createOrder_whenUserNotFound_shouldReturn404() throws Exception {
-        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/api/v1/users/by-email"))
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/users/by-email"))
                 .withQueryParam("email", equalTo("notfound@example.com"))
                 .willReturn(aResponse().withStatus(404)));
 
@@ -104,7 +104,7 @@ public class OrderControllerIntegrationTest extends AbstractIntegrationTest{
     @Test
     public void getOrderById_whenOrderExists_shouldReturnOrder() throws Exception {
         Order savedOrder = orderRepository.save(initOrder(1L, OrderStatus.PENDING));
-        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/api/v1/users/1"))
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/users/1"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody("{\"id\": 1}")));
@@ -129,7 +129,7 @@ public class OrderControllerIntegrationTest extends AbstractIntegrationTest{
     public void updateOrderStatus_whenOrderExists_shouldUpdateStatus() throws Exception {
         Order savedOrder = orderRepository.save(initOrder(1L, OrderStatus.PENDING));
 
-        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/api/v1/users/1"))
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/users/1"))
                 .willReturn(aResponse().withHeader("Content-Type", "application/json").withBody("{\"id\": 1}")));
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/orders/{id}/status", savedOrder.getId())

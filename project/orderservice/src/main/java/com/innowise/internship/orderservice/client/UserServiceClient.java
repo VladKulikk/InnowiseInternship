@@ -2,7 +2,6 @@ package com.innowise.internship.orderservice.client;
 
 import com.innowise.internship.orderservice.dto.UserResponseDto;
 import com.innowise.internship.orderservice.exception.ResourceNotFoundException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,16 +20,15 @@ public class UserServiceClient {
 
     return webClient
         .get()
-        .uri(
-            uriBuilder ->
-                uriBuilder.path("/users/by-email").queryParam("email", email).build())
+        .uri(uriBuilder -> uriBuilder.path("/users/by-email").queryParam("email", email).build())
         .headers(headers -> headers.setBearerAuth(authToken))
         .retrieve()
         .onStatus(
             HttpStatusCode::is4xxClientError,
             response ->
                 Mono.error(
-                    new RuntimeException("User not found from UserService with email: " + email)))
+                    new ResourceNotFoundException(
+                        "User not found from UserService with email: " + email)))
         .bodyToMono(UserResponseDto.class)
         .block();
   }

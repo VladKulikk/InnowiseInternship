@@ -22,6 +22,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -120,6 +121,7 @@ public class OrderServiceImplTest {
 
         Order order = new Order();
         order.setUser_id(123L);
+        order.setOrderItems(new ArrayList<>());
 
         UserResponseDto userResponseDto = new UserResponseDto();
 
@@ -152,8 +154,12 @@ public class OrderServiceImplTest {
 
         Order order1 = new Order();
         order1.setUser_id(123L);
+        order1.setOrderItems(new ArrayList<>());
+
         Order order2 = new Order();
         order2.setUser_id(124L);
+        order2.setOrderItems(new ArrayList<>());
+
         List<Order> orders = List.of(order1, order2);
 
         when(orderRepository.findOrdersByIdIn(ids)).thenReturn(orders);
@@ -182,6 +188,7 @@ public class OrderServiceImplTest {
 
         Order order1 = new Order();
         order1.setUser_id(123L);
+        order1.setOrderItems(new ArrayList<>());
         List<Order> orders = List.of(order1);
 
         when(orderRepository.findOrdersByStatusIn(statuses)).thenReturn(orders);
@@ -198,6 +205,7 @@ public class OrderServiceImplTest {
         long orderId = 1L;
         Order order = new Order();
         order.setUser_id(123L);
+        order.setOrderItems(new ArrayList<>());
         order.setStatus(OrderStatus.PENDING);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
