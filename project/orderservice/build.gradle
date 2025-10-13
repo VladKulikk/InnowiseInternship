@@ -24,7 +24,7 @@ configurations {
 
 sonarqube {
     properties {
-        property "sonar.projectKey", "orderservice"
+        property "sonar.projectKey", "VladKulikk_InnowiseInternship"
         property "sonar.projectName", "Order Service"
         property "sonar.host.url", System.getenv('SONAR_HOST_URL')
         property "sonar.token", System.getenv('SONAR_TOKEN')
