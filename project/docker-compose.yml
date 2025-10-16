@@ -55,6 +55,20 @@ services:
       - SPRING_DATA_REDIS_PORT=6379
       - USER_SERVICE_URL=http://userservice:8080/api/v1
 
+  api-gateway:
+    container_name: api-gateway-container
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - orderservice
+      - userservice
+      - authenticationservice
+
   # Defines the PostgreSQL service
   postgres-db:
     image: postgres:15-alpine # Official Postgres image

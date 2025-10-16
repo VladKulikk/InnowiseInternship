@@ -22,78 +22,90 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UserCredentialsRepository userCredentialsRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtProvider jwtProvider;
-    private final WebClient.Builder webClientBuilder;
+  private final UserCredentialsRepository userCredentialsRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtProvider jwtProvider;
+  private final WebClient.Builder webClientBuilder;
 
-    @Transactional
-    @Override
-    public void register(RegisterRequestDto requestDto) {
-        userCredentialsRepository.findByLogin(requestDto.getLogin()).ifPresent(user -> {
-            throw new DuplicateResourceException("User with login " + requestDto.getLogin() + " already exists");
-        });
+  @Transactional
+  @Override
+  public void register(RegisterRequestDto requestDto) {
+    userCredentialsRepository
+        .findByLogin(requestDto.getLogin())
+        .ifPresent(
+            user -> {
+              throw new DuplicateResourceException(
+                  "User with login " + requestDto.getLogin() + " already exists");
+            });
 
-        // this map represented JSON to userservice
-        Map<String, Object> userCreationPayload = new HashMap<>();
-        userCreationPayload.put("name", requestDto.getName());
-        userCreationPayload.put("surname", requestDto.getSurname());
-        userCreationPayload.put("email", requestDto.getEmail());
-        userCreationPayload.put("birth_date", requestDto.getBirth_date());
+    // this map represented JSON to userservice
+    Map<String, Object> userCreationPayload = new HashMap<>();
+    userCreationPayload.put("name", requestDto.getName());
+    userCreationPayload.put("surname", requestDto.getSurname());
+    userCreationPayload.put("email", requestDto.getEmail());
+    userCreationPayload.put("birth_date", requestDto.getBirth_date());
 
-        UserResponseDto createdUser = webClientBuilder.build()
-                .post()
-                .uri("/users")
-                .bodyValue(userCreationPayload)
-                .retrieve()
-                .bodyToMono(UserResponseDto.class)
-                .block();
+    UserResponseDto createdUser =
+        webClientBuilder
+            .build()
+            .post()
+            .uri("/users")
+            .bodyValue(userCreationPayload)
+            .retrieve()
+            .bodyToMono(UserResponseDto.class)
+            .block();
 
-        if (createdUser == null) {
-            throw new RuntimeException("Failed to create user profile");
-        }
-        if (createdUser.getId() == null) {
-            throw new RuntimeException("Failed to get id of user profile");
-        }
-
-        UserCredentials userCredentials = new UserCredentials();
-        userCredentials.setUserId(createdUser.getId());
-        userCredentials.setLogin(requestDto.getLogin());
-        userCredentials.setPasswordHash(passwordEncoder.encode(requestDto.getPassword()));
-
-        userCredentialsRepository.save(userCredentials);
+    if (createdUser == null) {
+      throw new RuntimeException("Failed to create user profile");
+    }
+    if (createdUser.getId() == null) {
+      throw new RuntimeException("Failed to get id of user profile");
     }
 
-    @Override
-    public AuthResponseDto login(AuthRequestDto requestDto) throws AuthException {
-        UserCredentials userCredentials = userCredentialsRepository.findByLogin(requestDto.getLogin()).orElseThrow(() -> new AuthException("Invalid login or password"));
+    UserCredentials userCredentials = new UserCredentials();
+    userCredentials.setUserId(createdUser.getId());
+    userCredentials.setLogin(requestDto.getLogin());
+    userCredentials.setPasswordHash(passwordEncoder.encode(requestDto.getPassword()));
 
-        if(!passwordEncoder.matches(requestDto.getPassword(), userCredentials.getPasswordHash())) {
-            throw new AuthException("Invalid login or password");
-        }
+    userCredentialsRepository.save(userCredentials);
+  }
 
-        String accessToken = jwtProvider.generateAccessToken(userCredentials.getLogin());
-        String refreshToken = jwtProvider.generateRefreshToken(userCredentials.getLogin());
+  @Override
+  public AuthResponseDto login(AuthRequestDto requestDto) throws AuthException {
+    UserCredentials userCredentials =
+        userCredentialsRepository
+            .findByLogin(requestDto.getLogin())
+            .orElseThrow(() -> new AuthException("Invalid login or password"));
 
-        return new AuthResponseDto(userCredentials.getUserId(), accessToken, refreshToken);
+    if (!passwordEncoder.matches(requestDto.getPassword(), userCredentials.getPasswordHash())) {
+      throw new AuthException("Invalid login or password");
     }
 
-    @Override
-    public AuthResponseDto refresh(String refreshToken) throws AuthException {
-        if(!jwtProvider.validateRefreshToken(refreshToken)) {
-            throw new AuthException("Invalid refresh token");
-        }
+    String accessToken = jwtProvider.generateAccessToken(userCredentials.getLogin());
+    String refreshToken = jwtProvider.generateRefreshToken(userCredentials.getLogin());
 
-        final String login = jwtProvider.getLoginFromRefreshToken(refreshToken);
-        final UserCredentials credentials = userCredentialsRepository.findByLogin(login).orElseThrow(() -> new AuthException("User not found"));
-        final String newAccessToken = jwtProvider.generateAccessToken(login);
-        final String newRefreshToken = jwtProvider.generateRefreshToken(login);
+    return new AuthResponseDto(userCredentials.getUserId(), accessToken, refreshToken);
+  }
 
-        return new AuthResponseDto(credentials.getUserId(), newAccessToken, newRefreshToken);
+  @Override
+  public AuthResponseDto refresh(String refreshToken) throws AuthException {
+    if (!jwtProvider.validateRefreshToken(refreshToken)) {
+      throw new AuthException("Invalid refresh token");
     }
 
-    @Override
-    public boolean validate(String accessToken) {
-        return jwtProvider.validateAccessToken(accessToken);
-    }
+    final String login = jwtProvider.getLoginFromRefreshToken(refreshToken);
+    final UserCredentials credentials =
+        userCredentialsRepository
+            .findByLogin(login)
+            .orElseThrow(() -> new AuthException("User not found"));
+    final String newAccessToken = jwtProvider.generateAccessToken(login);
+    final String newRefreshToken = jwtProvider.generateRefreshToken(login);
+
+    return new AuthResponseDto(credentials.getUserId(), newAccessToken, newRefreshToken);
+  }
+
+  @Override
+  public boolean validate(String accessToken) {
+    return jwtProvider.validateAccessToken(accessToken);
+  }
 }
