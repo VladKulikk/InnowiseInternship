@@ -9,14 +9,13 @@ import com.innowise.internship.authentificationservice.model.UserCredentials;
 import com.innowise.internship.authentificationservice.repository.UserCredentialsRepository;
 import com.innowise.internship.authentificationservice.security.JwtProvider;
 import jakarta.security.auth.message.AuthException;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +25,9 @@ public class AuthServiceImpl implements AuthService {
   private final PasswordEncoder passwordEncoder;
   private final JwtProvider jwtProvider;
   private final WebClient.Builder webClientBuilder;
+
+  private static final String USER_SERVICE_SECRET_HEADER = "X-Authentication-Secret";
+  private static final String USER_SERVICE_SECRET_VALUE = "super-secret-gateway-key-12345";
 
   @Transactional
   @Override
@@ -38,36 +40,22 @@ public class AuthServiceImpl implements AuthService {
                   "User with login " + requestDto.getLogin() + " already exists");
             });
 
-    // this map represented JSON to userservice
-    Map<String, Object> userCreationPayload = new HashMap<>();
-    userCreationPayload.put("name", requestDto.getName());
-    userCreationPayload.put("surname", requestDto.getSurname());
-    userCreationPayload.put("email", requestDto.getEmail());
-    userCreationPayload.put("birth_date", requestDto.getBirth_date());
+    Long createdUserId = null;
 
-    UserResponseDto createdUser =
-        webClientBuilder
-            .build()
-            .post()
-            .uri("/users")
-            .bodyValue(userCreationPayload)
-            .retrieve()
-            .bodyToMono(UserResponseDto.class)
-            .block();
-
-    if (createdUser == null) {
-      throw new RuntimeException("Failed to create user profile");
+    try {
+      createdUserId = createUserInUserService(requestDto);
+      saveUserCredentials(requestDto, createdUserId);
+    } catch (Exception e) {
+      if (createdUserId != null) {
+        try {
+          rollbackUserCreation(createdUserId);
+        } catch (Exception ex) {
+          throw new RuntimeException(
+              "Failed to rollback user creation for user with id " + createdUserId, ex);
+        }
+      }
+      throw new RuntimeException("Register failed", e);
     }
-    if (createdUser.getId() == null) {
-      throw new RuntimeException("Failed to get id of user profile");
-    }
-
-    UserCredentials userCredentials = new UserCredentials();
-    userCredentials.setUserId(createdUser.getId());
-    userCredentials.setLogin(requestDto.getLogin());
-    userCredentials.setPasswordHash(passwordEncoder.encode(requestDto.getPassword()));
-
-    userCredentialsRepository.save(userCredentials);
   }
 
   @Override
@@ -107,5 +95,53 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public boolean validate(String accessToken) {
     return jwtProvider.validateAccessToken(accessToken);
+  }
+
+  private Long createUserInUserService(RegisterRequestDto requestDto) {
+    // this map represented JSON to userservice
+    Map<String, Object> userCreationPayload = new HashMap<>();
+    userCreationPayload.put("name", requestDto.getName());
+    userCreationPayload.put("surname", requestDto.getSurname());
+    userCreationPayload.put("email", requestDto.getEmail());
+    userCreationPayload.put("birth_date", requestDto.getBirth_date());
+
+    UserResponseDto createdUser =
+        webClientBuilder
+            .build()
+            .post()
+            .uri("/users")
+            .bodyValue(userCreationPayload)
+            .retrieve()
+            .bodyToMono(UserResponseDto.class)
+            .block();
+
+    if (createdUser == null) {
+      throw new RuntimeException("Failed to create user profile");
+    }
+    if (createdUser.getId() == null) {
+      throw new RuntimeException("Failed to get id of user");
+    }
+
+    return createdUser.getId();
+  }
+
+  private void saveUserCredentials(RegisterRequestDto requestDto, Long userId) {
+    UserCredentials userCredentials = new UserCredentials();
+    userCredentials.setUserId(userId);
+    userCredentials.setLogin(requestDto.getLogin());
+    userCredentials.setPasswordHash(passwordEncoder.encode(requestDto.getPassword()));
+
+    userCredentialsRepository.save(userCredentials);
+  }
+
+  private void rollbackUserCreation(Long userId) {
+    webClientBuilder
+        .build()
+        .delete()
+        .uri("/users/" + userId)
+        .header(USER_SERVICE_SECRET_HEADER, USER_SERVICE_SECRET_VALUE)
+        .retrieve()
+        .bodyToMono(Void.class)
+        .block();
   }
 }
