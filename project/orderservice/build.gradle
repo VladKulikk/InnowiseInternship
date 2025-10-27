@@ -45,6 +45,14 @@ repositories {
 	mavenCentral()
 }
 
+ext{
+    mapstructVersion = '1.6.3'
+    testcontainersRedisVersion = '1.6.4'
+    springCloudContractWiremockVersion = '4.2.0'
+    lombokMapstructBindingVersion = '0.2.0'
+    testcontainersPostgresqlVersion = '1.21.3'
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -53,21 +61,21 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.liquibase:liquibase-core'
 	implementation 'org.springframework.kafka:spring-kafka'
-    implementation 'org.mapstruct:mapstruct:1.6.3'
-    implementation 'com.redis.testcontainers:testcontainers-redis:1.6.4'
-    implementation 'org.springframework.cloud:spring-cloud-contract-wiremock:4.2.0'
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    implementation "com.redis.testcontainers:testcontainers-redis:${testcontainersRedisVersion}"
+    implementation "org.springframework.cloud:spring-cloud-contract-wiremock:${springCloudContractWiremockVersion}"
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
-    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
     testImplementation 'org.springframework.cloud:spring-cloud-contract-wiremock'
     testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'org.testcontainers:postgresql:1.21.3'
+    testImplementation "org.testcontainers:postgresql:${testcontainersPostgresqlVersion}"
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

@@ -5,6 +5,7 @@ import com.innowise.internship.orderservice.dto.CreateOrderDto;
 import com.innowise.internship.orderservice.dto.OrderItemDto;
 import com.innowise.internship.orderservice.dto.OrderResponseDto;
 import com.innowise.internship.orderservice.dto.UserResponseDto;
+import com.innowise.internship.orderservice.exception.InvalidRequestParametersException;
 import com.innowise.internship.orderservice.exception.ResourceNotFoundException;
 import com.innowise.internship.orderservice.mapper.OrderMapper;
 import com.innowise.internship.orderservice.model.Item;
@@ -37,20 +38,12 @@ public class OrderServiceImpl implements OrderService {
         UserResponseDto user = userServiceClient.fetchUserByEmail(createOrderDto.getUserEmail(), getAuthToken());
 
         Order order = new Order();
-        order.setUser_id(user.getId());
+        order.setUserId(user.getId());
         order.setStatus(OrderStatus.PENDING);
 
         List<OrderItem> orderItems = createOrderDto.getOrderItems().stream()
-                .map(itemDto -> {
-                    Item item = itemRepository.findById(itemDto.getItemId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Item with id " + itemDto.getItemId() + " not found"));
-
-                    OrderItem orderItem = new OrderItem();
-                    orderItem.setItem(item);
-                    orderItem.setQuantity(itemDto.getQuantity());
-                    orderItem.setOrder(order);
-                    return orderItem;
-                }).toList();
+                .map(itemDto -> mapToOrderItem(itemDto, order))
+                .toList();
 
         order.setOrderItems(orderItems);
 
@@ -67,14 +60,26 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDto getOrderById(Long orderId) {
         Order order = findOrderOrThrow(orderId);
 
-        return buildCombinedResponseDto(order);
+        return buildOrderResponseDto(order);
+    }
+
+
+    @Override
+    public List<OrderResponseDto> findOrders(List<Long> ids, List<OrderStatus> statuses) {
+        if(ids != null && !ids.isEmpty()) {
+            return getOrdersByIds(ids);
+        }
+        if(statuses != null && !statuses.isEmpty()) {
+            return getOrdersByStatuses(statuses);
+        }
+        throw new InvalidRequestParametersException("Provide list of ids or list of statuses");
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<OrderResponseDto> getOrdersByIds(List<Long> ids) {
         return orderRepository.findOrdersByIdIn(ids).stream()
-                .map(this::buildCombinedResponseDto)
+                .map(this::buildOrderResponseDto)
                 .toList();
     }
 
@@ -82,7 +87,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public List<OrderResponseDto> getOrdersByStatuses(List<OrderStatus> statuses) {
         return orderRepository.findOrdersByStatusIn(statuses).stream()
-                .map(this::buildCombinedResponseDto)
+                .map(this::buildOrderResponseDto)
                 .toList();
     }
 
@@ -93,7 +98,7 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(newStatus);
         Order updatedOrder = orderRepository.save(order);
 
-        return buildCombinedResponseDto(updatedOrder);
+        return buildOrderResponseDto(updatedOrder);
     }
 
     @Transactional
@@ -107,17 +112,12 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order with  id " + id + " not found"));
     }
 
-    private OrderResponseDto buildCombinedResponseDto(Order order) {
+    private OrderResponseDto buildOrderResponseDto(Order order) {
         UserResponseDto user = userServiceClient.fetchUserById(order.getUser_id(), getAuthToken());
         OrderResponseDto responseDto = orderMapper.toOrderResponseDto(order);
 
         List<OrderItemDto> orderItemDtos = order.getOrderItems().stream()
-                .map(orderItem -> {
-                    OrderItemDto dto = new OrderItemDto();
-                    dto.setItemId(orderItem.getItem() != null ? orderItem.getItem().getId() : null);
-                    dto.setQuantity(orderItem.getQuantity());
-                    return dto;
-                })
+                .map(this::mapOrderItemToDto)
                 .toList();
 
         responseDto.setOrderItems(orderItemDtos);
@@ -135,5 +135,28 @@ public class OrderServiceImpl implements OrderService {
             return null;
         }
         return authHeader.substring(7);
+    }
+
+    private OrderItem mapToOrderItem(OrderItemDto itemDto, Order order){
+        Item item = itemRepository.findById(itemDto.getItemId())
+                .orElseThrow(() -> new ResourceNotFoundException("Item with id " + itemDto.getItemId() + " not found"));
+
+        OrderItem orderItem = new OrderItem();
+        orderItem.setItem(item);
+        orderItem.setQuantity(itemDto.getQuantity());
+        orderItem.setOrder(order);
+
+        return orderItem;
+    }
+
+    private OrderItemDto mapOrderItemToDto(OrderItem orderItem){
+        OrderItemDto orderItemDto = new OrderItemDto();
+
+        Long itemId = (orderItem.getItem() != null) ? orderItem.getItem().getId() : null;
+
+        orderItemDto.setItemId(itemId);
+        orderItemDto.setQuantity(orderItem.getQuantity());
+
+        return orderItemDto;
     }
 }

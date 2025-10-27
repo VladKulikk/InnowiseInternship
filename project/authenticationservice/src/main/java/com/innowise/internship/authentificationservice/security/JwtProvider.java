@@ -16,13 +16,18 @@ public class JwtProvider {
     private final SecretKey jwtAccessSecret;
     private final SecretKey jwtRefreshSecret;
 
+    @Value("${app.jwt.access-token.expiration-ms}")
+    private long accessTokenExpirationMs;
+
+    @Value("${app.jwt.refresh-token.expiration-ms}")
+    private long refreshTokenExpirationMs;
+
     public JwtProvider(@Value("${app.jwt.access-secret}") String jwtAccessSecret, @Value("${app.jwt.refresh-secret}") String jwtRefreshSecret) {
         this.jwtAccessSecret = Keys.hmacShaKeyFor(jwtAccessSecret.getBytes(StandardCharsets.UTF_8));
         this.jwtRefreshSecret = Keys.hmacShaKeyFor(jwtRefreshSecret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateAccessToken(String login) {
-        final long accessTokenExpirationMs = 15 * 60 * 60 * 1000; //15 hours
         final Date now = new Date();
         final Date accessExpiration =  new Date(now.getTime() + accessTokenExpirationMs);
 
@@ -35,7 +40,6 @@ public class JwtProvider {
     }
 
     public String generateRefreshToken(String login) {
-        final long refreshTokenExpirationMs = 15 * 60 * 60 * 24 * 1000;
         final Date now = new Date();
         final Date refreshExpiration =  new Date(now.getTime() + refreshTokenExpirationMs);
 
@@ -53,10 +57,6 @@ public class JwtProvider {
 
     public boolean validateRefreshToken(String token) {
         return validateToken(token, jwtRefreshSecret);
-    }
-
-    public String getLoginFromAccessToken(String token) {
-        return getClaims(token, jwtAccessSecret).getSubject();
     }
 
     public String getLoginFromRefreshToken(String token) {

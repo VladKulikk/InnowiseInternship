@@ -2,7 +2,6 @@ package com.innowise.internship.orderservice.repository;
 
 import com.innowise.internship.orderservice.model.Order;
 import com.innowise.internship.orderservice.model.OrderStatus;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

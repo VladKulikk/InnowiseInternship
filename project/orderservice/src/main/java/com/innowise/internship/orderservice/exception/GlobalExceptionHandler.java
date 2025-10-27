@@ -36,6 +36,21 @@ public class GlobalExceptionHandler {
         new ErrorResponse(
             LocalDateTime.now(),
             HttpStatus.BAD_REQUEST.value(),
+            "Validation failed",
+            ex.getMessage(),
+            request.getRequestURI());
+
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(InvalidRequestParametersException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidRequestParametersException(
+      InvalidRequestParametersException ex, HttpServletRequest request) {
+
+    ErrorResponse errorResponse =
+        new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.BAD_REQUEST.value(),
             "Bad Request",
             ex.getMessage(),
             request.getRequestURI());
