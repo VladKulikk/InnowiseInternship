@@ -22,29 +22,31 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+  private final AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequestDto requestDto) {
-        authService.register(requestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+  @PostMapping("/register")
+  public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequestDto requestDto) {
+    authService.register(requestDto);
+    return ResponseEntity.status(HttpStatus.CREATED).build();
+  }
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody AuthRequestDto requestDto) throws AuthException {
-        AuthResponseDto authResponse = authService.login(requestDto);
-        return ResponseEntity.ok(authResponse);
-    }
+  @PostMapping("/login")
+  public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody AuthRequestDto requestDto)
+      throws AuthException {
+    AuthResponseDto authResponse = authService.login(requestDto);
+    return ResponseEntity.ok(authResponse);
+  }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<AuthResponseDto> refresh(@RequestBody RefreshTokenRequestDto requestDto) throws AuthException {
-        AuthResponseDto response = authService.refresh(requestDto.getRefreshToken());
-        return ResponseEntity.ok(response);
-    }
+  @PostMapping("/refresh")
+  public ResponseEntity<AuthResponseDto> refresh(@RequestBody RefreshTokenRequestDto requestDto)
+      throws AuthException {
+    AuthResponseDto response = authService.refresh(requestDto.getRefreshToken());
+    return ResponseEntity.ok(response);
+  }
 
-    @GetMapping("/validate")
-    public ResponseEntity<Boolean> validate(@RequestParam String accessToken) {
-        boolean isValid = authService.validate(accessToken);
-        return ResponseEntity.ok(isValid);
-    }
+  @GetMapping("/validate")
+  public ResponseEntity<Boolean> validate(@RequestParam String accessToken) {
+    boolean isValid = authService.validate(accessToken);
+    return ResponseEntity.ok(isValid);
+  }
 }

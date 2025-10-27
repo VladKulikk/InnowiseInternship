@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: authenticationservice-route
+              uri: http://authenticationservice:8080
+              predicates:
+                - Path=/api/v1/auth/**
+
+            - id: userservice-route
+              uri: http://userservice:8080
+              predicates:
+                - Path=/api/v1/users/**, /api/v1/cards/**
+
+            - id: orderservice-route
+              uri: http://orderservice:8080
+              predicates:
+                - Path=/api/v1/orders/**, /api/v1/items/**
+
+service-urls:
+  auth-service: http://authenticationservice:8080/api/v1/auth
