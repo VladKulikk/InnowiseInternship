@@ -1,0 +1,103 @@
+plugins {
+	id 'java'
+    id 'jacoco'
+	id 'org.springframework.boot' version '3.5.6'
+	id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.sonarqube' version '5.0.0.4638'
+}
+
+group = 'com.innowise.internship'
+version = '0.0.1-SNAPSHOT'
+description = 'Demo project for Spring Boot'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "VladKulikk_InnowiseInternship"
+        property "sonar.projectName", "Order Service"
+        property "sonar.host.url", System.getenv('SONAR_HOST_URL')
+        property "sonar.token", System.getenv('SONAR_TOKEN')
+        property "sonar.organization", "vladkulikk"
+        property "sonar.java.source", "21"
+        property "sonar.java.target", "21"
+
+        property "sonar.coverage.exclusions", "**/src/test/**"
+
+        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+        property "sonar.junit.reportPaths", "build/test-results/test"
+        property "sonar.sources", "src/main/java"
+        property "sonar.tests", "src/test/java"
+    }
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext{
+    mapstructVersion = '1.6.3'
+    testcontainersRedisVersion = '1.6.4'
+    springCloudContractWiremockVersion = '4.2.0'
+    lombokMapstructBindingVersion = '0.2.0'
+    testcontainersPostgresqlVersion = '1.21.3'
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.liquibase:liquibase-core'
+	implementation 'org.springframework.kafka:spring-kafka'
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    implementation "com.redis.testcontainers:testcontainers-redis:${testcontainersRedisVersion}"
+    implementation "org.springframework.cloud:spring-cloud-contract-wiremock:${springCloudContractWiremockVersion}"
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'org.springframework.cloud:spring-cloud-contract-wiremock'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation "org.testcontainers:postgresql:${testcontainersPostgresqlVersion}"
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.testcontainers:testcontainers-bom:1.19.7"
+    }
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

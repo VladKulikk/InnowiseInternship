@@ -1,3 +1,6 @@
+### Environment & Secrets ###
+.env
+
 # Maven
 # This ignores all compiled output and packaged applications.
 target/
