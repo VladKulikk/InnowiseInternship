@@ -15,59 +15,59 @@ import java.util.List;
 @Component
 public class SecurityFilter implements GlobalFilter, Ordered {
 
-    private final WebClient authServiceWebClient;
-    private final List<String> publicEndpoints = List.of(
-            "/api/v1/auth/register",
-            "/api/v1/auth/login"
-    );
+  private final WebClient authServiceWebClient;
+  private final List<String> publicEndpoints =
+      List.of("/api/v1/auth/register", "/api/v1/auth/login");
 
-    public SecurityFilter(WebClient.Builder authServiceWebClientBuilder) {
-        this.authServiceWebClient = authServiceWebClientBuilder.build();
+  public SecurityFilter(WebClient.Builder authServiceWebClientBuilder) {
+    this.authServiceWebClient = authServiceWebClientBuilder.build();
+  }
+
+  @Override
+  public Mono<Void> filter(ServerWebExchange serverWebExchange, GatewayFilterChain chain) {
+    String path = serverWebExchange.getRequest().getURI().getPath();
+
+    if (publicEndpoints.stream().anyMatch(path::startsWith)) {
+      return chain.filter(serverWebExchange);
     }
 
-    @Override
-    public Mono<Void> filter(ServerWebExchange serverWebExchange, GatewayFilterChain chain) {
-        String path = serverWebExchange.getRequest().getURI().getPath();
+    HttpHeaders headers = serverWebExchange.getRequest().getHeaders();
 
-        if(publicEndpoints.stream().anyMatch(path::startsWith)){
-            return chain.filter(serverWebExchange);
-        }
-
-        HttpHeaders headers = serverWebExchange.getRequest().getHeaders();
-
-        if(!headers.containsKey(HttpHeaders.AUTHORIZATION)){
-            return onError(serverWebExchange, HttpStatus.UNAUTHORIZED);
-        }
-
-        String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
-
-        if(authHeader == null || !authHeader.startsWith("Bearer ")){
-            return onError(serverWebExchange, HttpStatus.UNAUTHORIZED);
-        }
-
-        String authToken = authHeader.substring(7);
-
-        return authServiceWebClient.get()
-                .uri("/validate?accessToken=" + authToken)
-                .retrieve()
-                .bodyToMono(Boolean.class)
-                .flatMap(isValid -> {
-                    if(Boolean.TRUE.equals(isValid)){
-                        return chain.filter(serverWebExchange);
-                    } else {
-                        return onError(serverWebExchange, HttpStatus.UNAUTHORIZED);
-                    }
-                })
-                .onErrorResume(error -> onError(serverWebExchange, HttpStatus.INTERNAL_SERVER_ERROR));
+    if (!headers.containsKey(HttpHeaders.AUTHORIZATION)) {
+      return onError(serverWebExchange, HttpStatus.UNAUTHORIZED);
     }
 
-    private Mono<Void> onError(ServerWebExchange serverWebExchange, HttpStatus httpStatus) {
-        serverWebExchange.getResponse().setStatusCode(httpStatus);
-        return serverWebExchange.getResponse().setComplete();
+    String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
+
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+      return onError(serverWebExchange, HttpStatus.UNAUTHORIZED);
     }
 
-    @Override
-    public int getOrder() {
-        return -100;
-    }
+    String authToken = authHeader.substring(7);
+
+    return authServiceWebClient
+        .get()
+        .uri("/validate?accessToken=" + authToken)
+        .retrieve()
+        .bodyToMono(Boolean.class)
+        .flatMap(
+            isValid -> {
+              if (Boolean.TRUE.equals(isValid)) {
+                return chain.filter(serverWebExchange);
+              } else {
+                return onError(serverWebExchange, HttpStatus.UNAUTHORIZED);
+              }
+            })
+        .onErrorResume(error -> onError(serverWebExchange, HttpStatus.INTERNAL_SERVER_ERROR));
+  }
+
+  private Mono<Void> onError(ServerWebExchange serverWebExchange, HttpStatus httpStatus) {
+    serverWebExchange.getResponse().setStatusCode(httpStatus);
+    return serverWebExchange.getResponse().setComplete();
+  }
+
+  @Override
+  public int getOrder() {
+    return -100;
+  }
 }

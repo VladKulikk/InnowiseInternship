@@ -8,11 +8,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
-    @Value("${user.service.url}")
-    private String userServiceUrl;
+  @Value("${user.service.url}")
+  private String userServiceUrl;
 
-    @Bean
-    public WebClient.Builder webClientBuilder() {
-        return WebClient.builder().baseUrl(userServiceUrl);
-    }
+  @Bean
+  public WebClient.Builder webClientBuilder() {
+    return WebClient.builder().baseUrl(userServiceUrl);
+  }
 }

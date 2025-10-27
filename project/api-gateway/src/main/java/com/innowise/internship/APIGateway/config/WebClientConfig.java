@@ -8,11 +8,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
-    @Value("${service-urls.auth-service}")
-    private String authServiceUrl;
+  @Value("${service-urls.auth-service}")
+  private String authServiceUrl;
 
-    @Bean
-    public WebClient.Builder authServiceWebClientBuilder() {
-        return WebClient.builder().baseUrl(authServiceUrl);
-    }
+  @Bean
+  public WebClient.Builder authServiceWebClientBuilder() {
+    return WebClient.builder().baseUrl(authServiceUrl);
+  }
 }
