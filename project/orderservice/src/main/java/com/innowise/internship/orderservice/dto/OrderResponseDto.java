@@ -10,7 +10,7 @@ import java.util.List;
 public class OrderResponseDto {
     private Long id;
     private OrderStatus status;
-    private LocalDate creation_date;
+    private LocalDate creationDate;
     private List<OrderItemDto> orderItems;
     private UserResponseDto user;
 }

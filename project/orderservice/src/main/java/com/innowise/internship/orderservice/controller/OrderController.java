@@ -26,47 +26,43 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderService orderService;
+  private final OrderService orderService;
 
-    @PostMapping
-    public ResponseEntity<OrderResponseDto> createOrder(@Valid @RequestBody CreateOrderDto createOrderDto) {
-        OrderResponseDto newOrder = orderService.createOrder(createOrderDto);
+  @PostMapping
+  public ResponseEntity<OrderResponseDto> createOrder(
+      @Valid @RequestBody CreateOrderDto createOrderDto) {
+    OrderResponseDto newOrder = orderService.createOrder(createOrderDto);
 
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(newOrder.getId())
-                .toUri();
+    URI location =
+        ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(newOrder.getId())
+            .toUri();
 
-        return ResponseEntity.created(location).body(newOrder);
-    }
+    return ResponseEntity.created(location).body(newOrder);
+  }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<OrderResponseDto> getOrder(@PathVariable Long id) {
-        return ResponseEntity.ok(orderService.getOrderById(id));
-    }
+  @GetMapping("/{id}")
+  public ResponseEntity<OrderResponseDto> getOrder(@PathVariable Long id) {
+    return ResponseEntity.ok(orderService.getOrderById(id));
+  }
 
-    @GetMapping
-    public ResponseEntity<List<OrderResponseDto>> getOrders(@RequestParam(required = false) List<Long> ids, @RequestParam(required = false) List<OrderStatus> statuses) {
+  @GetMapping
+  public ResponseEntity<List<OrderResponseDto>> getOrders(
+      @RequestParam(required = false) List<Long> ids,
+      @RequestParam(required = false) List<OrderStatus> statuses) {
+    return ResponseEntity.ok(orderService.findOrders(ids, statuses));
+  }
 
-        if(ids != null && !ids.isEmpty()) {
-            return ResponseEntity.ok(orderService.getOrdersByIds(ids));
-        }
-        if (statuses != null && !statuses.isEmpty()) {
-            return ResponseEntity.ok(orderService.getOrdersByStatuses(statuses));
-        }
+  @PutMapping("/{id}/status")
+  public ResponseEntity<OrderResponseDto> updateOrderStatus(
+      @PathVariable Long id, @RequestParam OrderStatus newStatus) {
+    return ResponseEntity.ok(orderService.updateOrderStatus(id, newStatus));
+  }
 
-        return ResponseEntity.badRequest().build();
-    }
-
-    @PutMapping("/{id}/status")
-    public ResponseEntity<OrderResponseDto> updateOrderStatus(@PathVariable Long id, @RequestParam OrderStatus newStatus) {
-        return ResponseEntity.ok(orderService.updateOrderStatus(id, newStatus));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<OrderResponseDto> deleteOrder(@PathVariable Long id) {
-        orderService.deleteOrderById(id);
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping("/{id}")
+  public ResponseEntity<OrderResponseDto> deleteOrder(@PathVariable Long id) {
+    orderService.deleteOrderById(id);
+    return ResponseEntity.noContent().build();
+  }
 }

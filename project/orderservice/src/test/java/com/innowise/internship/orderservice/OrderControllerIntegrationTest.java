@@ -170,7 +170,7 @@ public class OrderControllerIntegrationTest extends AbstractIntegrationTest{
 
     private Order initOrder(Long userId, OrderStatus status){
         Order order = new Order();
-        order.setUser_id(userId);
+        order.setUserId(userId);
         order.setStatus(status);
         return order;
     }

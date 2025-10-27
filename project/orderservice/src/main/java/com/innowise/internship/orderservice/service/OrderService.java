@@ -13,4 +13,5 @@ public interface OrderService {
     List<OrderResponseDto> getOrdersByStatuses(List<OrderStatus> statuses);
     OrderResponseDto updateOrderStatus(Long id, OrderStatus newStatus);
     void deleteOrderById(Long id);
+    List<OrderResponseDto> findOrders(List<Long> ids, List<OrderStatus> statuses);
 }

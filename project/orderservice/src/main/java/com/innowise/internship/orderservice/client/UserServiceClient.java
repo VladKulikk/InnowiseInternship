@@ -11,6 +11,8 @@ import reactor.core.publisher.Mono;
 public class UserServiceClient {
 
   private final WebClient webClient;
+  private static final String USER_NOT_FOUND_WITH_EMAIL = "User not found from UserService with email: ";
+  private static final String USER_NOT_FOUND_WITH_ID = "User not found from UserService with id: ";
 
   public UserServiceClient(WebClient webClient) {
     this.webClient = webClient;
@@ -28,7 +30,7 @@ public class UserServiceClient {
             response ->
                 Mono.error(
                     new ResourceNotFoundException(
-                        "User not found from UserService with email: " + email)))
+                            USER_NOT_FOUND_WITH_EMAIL + email)))
         .bodyToMono(UserResponseDto.class)
         .block();
   }
@@ -44,7 +46,7 @@ public class UserServiceClient {
             response ->
                 Mono.error(
                     new ResourceNotFoundException(
-                        "User not found from UserService with id: " + userId)))
+                            USER_NOT_FOUND_WITH_ID + userId)))
         .bodyToMono(UserResponseDto.class)
         .block();
   }
