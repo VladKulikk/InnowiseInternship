@@ -54,6 +54,7 @@ services:
       - SPRING_DATA_REDIS_HOST=redis-cache
       - SPRING_DATA_REDIS_PORT=6379
       - USER_SERVICE_URL=http://userservice:8080/api/v1
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-broker:9092
 
   api-gateway:
     container_name: api-gateway-container
@@ -68,6 +69,20 @@ services:
       - orderservice
       - userservice
       - authenticationservice
+      - paymentservice
+
+  paymentservice:
+    container_name: paymentservice-container
+    build:
+      context: ./paymentservice
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8080"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://admin:123456@mongo:27017/paymentsdb?authSource=admin
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-broker:9092
+    depends_on:
+      - mongo
 
   # Defines the PostgreSQL service
   postgres-db:
@@ -110,5 +125,17 @@ services:
     depends_on:
       - zookeeper # Makes sure Zookeeper starts before Kafka
 
+  mongo:
+    image: mongo:latest
+    container_name: mongo_db
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=123456
+    volumes:
+      - mongo-data:/data/db
+
 volumes:
   postgres-data: # Defines the volume for data persistence
+  mongo-data:
