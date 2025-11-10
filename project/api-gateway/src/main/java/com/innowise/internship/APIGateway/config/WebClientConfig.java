@@ -12,7 +12,7 @@ public class WebClientConfig {
   private String authServiceUrl;
 
   @Bean
-  public WebClient.Builder authServiceWebClientBuilder() {
-    return WebClient.builder().baseUrl(authServiceUrl);
+  public WebClient authServiceWebClientBuilder() {
+    return WebClient.builder().baseUrl(authServiceUrl).build();
   }
 }

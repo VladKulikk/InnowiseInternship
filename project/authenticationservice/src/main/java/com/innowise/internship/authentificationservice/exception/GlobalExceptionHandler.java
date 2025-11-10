@@ -41,4 +41,19 @@ public class GlobalExceptionHandler {
 
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
+
+  @ExceptionHandler(RegistrationFailedException.class)
+  public ResponseEntity<ErrorResponse> handleRegistrationFailedException(
+      RegistrationFailedException ex, HttpServletRequest request) {
+
+    ErrorResponse errorResponse =
+        new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            "Internal Server Error",
+            ex.getMessage(),
+            request.getRequestURI());
+
+    return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 }

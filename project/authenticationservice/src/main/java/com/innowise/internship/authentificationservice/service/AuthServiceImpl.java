@@ -1,10 +1,12 @@
 package com.innowise.internship.authentificationservice.service;
 
+import com.innowise.internship.authentificationservice.client.UserServiceClient;
 import com.innowise.internship.authentificationservice.dto.AuthRequestDto;
 import com.innowise.internship.authentificationservice.dto.AuthResponseDto;
 import com.innowise.internship.authentificationservice.dto.RegisterRequestDto;
 import com.innowise.internship.authentificationservice.dto.UserResponseDto;
 import com.innowise.internship.authentificationservice.exception.DuplicateResourceException;
+import com.innowise.internship.authentificationservice.exception.RegistrationFailedException;
 import com.innowise.internship.authentificationservice.model.UserCredentials;
 import com.innowise.internship.authentificationservice.repository.UserCredentialsRepository;
 import com.innowise.internship.authentificationservice.security.JwtProvider;
@@ -15,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 @RequiredArgsConstructor
@@ -24,10 +25,9 @@ public class AuthServiceImpl implements AuthService {
   private final UserCredentialsRepository userCredentialsRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtProvider jwtProvider;
-  private final WebClient.Builder webClientBuilder;
+  private final UserServiceClient userServiceClient;
 
-  private static final String USER_SERVICE_SECRET_HEADER = "X-Authentication-Secret";
-  private static final String USER_SERVICE_SECRET_VALUE = "super-secret-gateway-key-12345";
+
 
   @Transactional
   @Override
@@ -48,13 +48,13 @@ public class AuthServiceImpl implements AuthService {
     } catch (Exception e) {
       if (createdUserId != null) {
         try {
-          rollbackUserCreation(createdUserId);
+          userServiceClient.rollbackUserCreation(createdUserId);
         } catch (Exception ex) {
           throw new RuntimeException(
               "Failed to rollback user creation for user with id " + createdUserId, ex);
         }
       }
-      throw new RuntimeException("Register failed", e);
+      throw new RegistrationFailedException("Registration failed");
     }
   }
 
@@ -105,15 +105,7 @@ public class AuthServiceImpl implements AuthService {
     userCreationPayload.put("email", requestDto.getEmail());
     userCreationPayload.put("birth_date", requestDto.getBirth_date());
 
-    UserResponseDto createdUser =
-        webClientBuilder
-            .build()
-            .post()
-            .uri("/users")
-            .bodyValue(userCreationPayload)
-            .retrieve()
-            .bodyToMono(UserResponseDto.class)
-            .block();
+    UserResponseDto createdUser = userServiceClient.createUser(userCreationPayload);
 
     if (createdUser == null) {
       throw new RuntimeException("Failed to create user profile");
@@ -132,16 +124,5 @@ public class AuthServiceImpl implements AuthService {
     userCredentials.setPasswordHash(passwordEncoder.encode(requestDto.getPassword()));
 
     userCredentialsRepository.save(userCredentials);
-  }
-
-  private void rollbackUserCreation(Long userId) {
-    webClientBuilder
-        .build()
-        .delete()
-        .uri("/users/" + userId)
-        .header(USER_SERVICE_SECRET_HEADER, USER_SERVICE_SECRET_VALUE)
-        .retrieve()
-        .bodyToMono(Void.class)
-        .block();
   }
 }
