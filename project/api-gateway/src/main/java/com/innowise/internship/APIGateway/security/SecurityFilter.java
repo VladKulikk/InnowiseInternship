@@ -1,5 +1,6 @@
 package com.innowise.internship.APIGateway.security;
 
+import com.innowise.internship.APIGateway.client.AuthServiceClient;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -15,12 +16,12 @@ import java.util.List;
 @Component
 public class SecurityFilter implements GlobalFilter, Ordered {
 
-  private final WebClient authServiceWebClient;
+  private final AuthServiceClient authServiceClient;
   private final List<String> publicEndpoints =
       List.of("/api/v1/auth/register", "/api/v1/auth/login");
 
-  public SecurityFilter(WebClient.Builder authServiceWebClientBuilder) {
-    this.authServiceWebClient = authServiceWebClientBuilder.build();
+  public SecurityFilter(AuthServiceClient authServiceClient) {
+    this.authServiceClient = authServiceClient;
   }
 
   @Override
@@ -45,11 +46,7 @@ public class SecurityFilter implements GlobalFilter, Ordered {
 
     String authToken = authHeader.substring(7);
 
-    return authServiceWebClient
-        .get()
-        .uri("/validate?accessToken=" + authToken)
-        .retrieve()
-        .bodyToMono(Boolean.class)
+    return authServiceClient.validateToken(authToken)
         .flatMap(
             isValid -> {
               if (Boolean.TRUE.equals(isValid)) {
