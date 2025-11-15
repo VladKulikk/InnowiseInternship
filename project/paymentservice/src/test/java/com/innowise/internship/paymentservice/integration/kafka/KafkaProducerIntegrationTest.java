@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
-import org.testcontainers.utility.TestcontainersConfiguration;
+import com.innowise.internship.paymentservice.TestcontainersConfig;
 
 
 import java.math.BigDecimal;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Import({
-        TestcontainersConfiguration.class,
+        TestcontainersConfig.class,
         TestConsumerConfiguration.class
 })
 @TestPropertySource(properties = {

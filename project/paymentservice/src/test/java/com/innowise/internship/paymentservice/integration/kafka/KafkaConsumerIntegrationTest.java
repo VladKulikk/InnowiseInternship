@@ -12,7 +12,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.testcontainers.utility.TestcontainersConfiguration;
+import com.innowise.internship.paymentservice.TestcontainersConfig;
+
+
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -23,7 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@Import(TestcontainersConfiguration.class)
+@Import(TestcontainersConfig.class)
 @TestPropertySource(properties = {
         "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer",
         "spring.kafka.consumer.properties.spring.json.trusted.packages=*"

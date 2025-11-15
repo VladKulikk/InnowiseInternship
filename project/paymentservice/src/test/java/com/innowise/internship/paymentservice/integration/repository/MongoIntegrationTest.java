@@ -7,9 +7,9 @@ import com.innowise.internship.paymentservice.repository.PaymentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.testcontainers.utility.TestcontainersConfiguration;
+import com.innowise.internship.paymentservice.TestcontainersConfig;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -18,8 +18,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataMongoTest
-@Import(TestcontainersConfiguration.class)
+@SpringBootTest
+@Import(TestcontainersConfig.class)
 public class MongoIntegrationTest {
 
     @Autowired
