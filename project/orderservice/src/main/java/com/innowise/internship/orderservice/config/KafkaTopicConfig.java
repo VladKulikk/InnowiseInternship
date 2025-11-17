@@ -15,9 +15,4 @@ public class KafkaTopicConfig {
   public NewTopic createOrderTopic() {
     return TopicBuilder.name(ORDER_CREATE_TOPIC).partitions(1).replicas(1).build();
   }
-
-  @Bean
-  public NewTopic createPaymentTopic() {
-    return TopicBuilder.name(PAYMENT_CREATE_TOPIC).partitions(1).replicas(1).build();
-  }
 }

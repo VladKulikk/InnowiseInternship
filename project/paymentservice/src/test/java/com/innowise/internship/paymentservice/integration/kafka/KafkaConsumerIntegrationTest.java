@@ -1,5 +1,6 @@
 package com.innowise.internship.paymentservice.integration.kafka;
 
+import com.innowise.internship.paymentservice.TestcontainersConfig;
 import com.innowise.internship.paymentservice.dto.OrderCreatedEvent;
 import com.innowise.internship.paymentservice.kafka.KafkaProducerService;
 import com.innowise.internship.paymentservice.model.Payment;
@@ -10,11 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import com.innowise.internship.paymentservice.TestcontainersConfig;
-
-
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -26,11 +23,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @Import(TestcontainersConfig.class)
-@TestPropertySource(properties = {
-        "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer",
-        "spring.kafka.consumer.properties.spring.json.trusted.packages=*"
-})
-public class KafkaConsumerIntegrationTest {
+public class KafkaConsumerIntegrationTest{
 
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;

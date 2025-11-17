@@ -1,5 +1,6 @@
 package com.innowise.internship.paymentservice.integration.kafka;
 
+import com.innowise.internship.paymentservice.TestcontainersConfig;
 import com.innowise.internship.paymentservice.dto.PaymentProcessedEvent;
 import com.innowise.internship.paymentservice.kafka.KafkaProducerService;
 import com.innowise.internship.paymentservice.model.Payment;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
-import com.innowise.internship.paymentservice.TestcontainersConfig;
 
 
 import java.math.BigDecimal;
@@ -19,14 +19,12 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Import({
-        TestcontainersConfig.class,
-        TestConsumerConfiguration.class
-})
+@Import({TestConsumerConfiguration.class, TestcontainersConfig.class})
 @TestPropertySource(properties = {
         "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer",
         "spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer",
-        "spring.kafka.consumer.properties.spring.json.trusted.packages=*"
+        "spring.kafka.consumer.properties.spring.json.trusted.packages=*",
+        "spring.kafka.consumer.auto-offset-reset=earliest"
 })
 public class KafkaProducerIntegrationTest {
 

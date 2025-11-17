@@ -12,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -29,6 +30,7 @@ public class Order {
 
     @Column(name = "userId", nullable = false)
     @Setter(AccessLevel.NONE)
+    @Getter(AccessLevel.NONE)
     private Long user_id;
 
     @Enumerated(EnumType.STRING)
@@ -43,5 +45,8 @@ public class Order {
 
     public void setUserId(Long user_id) {
         this.user_id = user_id;
+    }
+    public Long getUserId() {
+        return user_id;
     }
 }

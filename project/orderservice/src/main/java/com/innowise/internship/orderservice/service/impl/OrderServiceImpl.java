@@ -66,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
 
     try {
       kafkaProducerService.sendOrderCreatedEvent(
-          savedOrder.getId(), savedOrder.getUser_id(), totalAmount);
+          savedOrder.getId(), savedOrder.getUserId(), totalAmount);
     } catch (Exception e) {
       throw new RuntimeException("Failed to send kafka message", e);
     }
@@ -133,7 +133,7 @@ public class OrderServiceImpl implements OrderService {
   }
 
   private OrderResponseDto buildOrderResponseDto(Order order) {
-    UserResponseDto user = userServiceClient.fetchUserById(order.getUser_id(), getAuthToken());
+    UserResponseDto user = userServiceClient.fetchUserById(order.getUserId(), getAuthToken());
     OrderResponseDto responseDto = orderMapper.toOrderResponseDto(order);
 
     List<OrderItemDto> orderItemDtos =

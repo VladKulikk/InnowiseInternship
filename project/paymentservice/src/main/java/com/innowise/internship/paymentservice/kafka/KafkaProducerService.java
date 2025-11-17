@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class KafkaProducerService {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, PaymentProcessedEvent> kafkaTemplate;
 
     public void sendPaymentProcessedEvent(Payment payment) {
         PaymentProcessedEvent paymentProcessedEvent = new PaymentProcessedEvent(

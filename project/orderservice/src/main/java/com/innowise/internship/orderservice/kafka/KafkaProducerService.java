@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class KafkaProducerService {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
 
     public void sendOrderCreatedEvent(Long orderId, Long userId, BigDecimal totalAmount) {
         OrderCreatedEvent event = new OrderCreatedEvent(orderId, userId, totalAmount);

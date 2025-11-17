@@ -6,6 +6,7 @@ import com.innowise.internship.orderservice.dto.OrderItemDto;
 import com.innowise.internship.orderservice.dto.OrderResponseDto;
 import com.innowise.internship.orderservice.dto.UserResponseDto;
 import com.innowise.internship.orderservice.exception.ResourceNotFoundException;
+import com.innowise.internship.orderservice.kafka.KafkaProducerService;
 import com.innowise.internship.orderservice.mapper.OrderMapper;
 import com.innowise.internship.orderservice.model.Item;
 import com.innowise.internship.orderservice.model.Order;
@@ -22,6 +23,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -52,6 +54,9 @@ public class OrderServiceImplTest {
     @Mock
     private UserServiceClient userServiceClient;
 
+    @Mock
+    private KafkaProducerService kafkaProducerService;
+
     @InjectMocks
     private OrderServiceImpl orderService;
 
@@ -72,21 +77,41 @@ public class OrderServiceImplTest {
         userResponseDto.setId(123L);
 
         Item item = new Item();
+        item.setPrice(new BigDecimal("10.00"));
 
         Order savedOrder = new Order();
+        savedOrder.setId(1L);
+        savedOrder.setUserId(123L);
 
         OrderResponseDto expectedOrderResponseDto = new OrderResponseDto();
+        expectedOrderResponseDto.setUser(userResponseDto);
 
         when(userServiceClient.fetchUserByEmail(eq("test@example.com"), anyString())).thenReturn(userResponseDto);
         when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
-        when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
-        when(orderMapper.toOrderResponseDto(savedOrder)).thenReturn(expectedOrderResponseDto);
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
+            Order orderToSave = invocation.getArgument(0);
+
+            if(orderToSave.getId() == null){
+                orderToSave.setId(1L);
+            }
+            if(orderToSave.getUserId() == null){
+                orderToSave.setUserId(123L);
+            }
+            return orderToSave;
+        });
+        when(orderMapper.toOrderResponseDto(any(Order.class))).thenReturn(expectedOrderResponseDto);
 
         OrderResponseDto actualOrderResponse = orderService.createOrder(createOrderDto);
 
         assertThat(actualOrderResponse).isNotNull();
         assertThat(actualOrderResponse.getUser()).isEqualTo(userResponseDto);
         verify(orderRepository).save(any(Order.class));
+
+        verify(kafkaProducerService).sendOrderCreatedEvent(
+                eq(1L),
+                eq(123L),
+                eq(new BigDecimal("20.00"))
+        );
     }
 
     @Test

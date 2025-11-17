@@ -18,8 +18,8 @@ public class UserServiceClient {
     @Value("${user.service.client.request--timeout-seconds}")
     private int requestTimeoutSeconds;
 
-    public UserServiceClient(WebClient webClient, UserServiceProperties userServiceProperties) {
-        this.webClient = webClient;
+    public UserServiceClient(WebClient.Builder webClientBuilder, UserServiceProperties userServiceProperties) {
+        this.webClient = webClientBuilder.build();
         this.userServiceProperties = userServiceProperties;
     }
 

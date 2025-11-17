@@ -19,5 +19,4 @@ public class TestKafkaConsumer {
     public void receive(PaymentProcessedEvent event) {
         queue.add(event);
     }
-
 }
