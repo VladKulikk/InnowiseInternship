@@ -63,6 +63,7 @@
         <dependency>
             <groupId>io.mongock</groupId>
             <artifactId>mongock-springboot</artifactId>
+            <version>${mongock.version}</version>
         </dependency>
         <dependency>
             <groupId>io.mongock</groupId>

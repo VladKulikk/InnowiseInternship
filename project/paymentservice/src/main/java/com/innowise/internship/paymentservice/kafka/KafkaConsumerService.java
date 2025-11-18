@@ -18,22 +18,17 @@ public class KafkaConsumerService {
 
     @KafkaListener(
             topics = KafkaTopicConfig.ORDER_CREATE_TOPIC,
-            groupId = "${spring.kafka.consumer.group-id}"
-    )
-    public void handleOrderCreated(OrderCreatedEvent event){
-        try{
-            Payment payment = new Payment(
-                    event.getOrderId(),
-                    event.getUserId(),
-                    event.getAmount()
-            );
+            groupId = "${spring.kafka.consumer.group-id}")
+    public void handleOrderCreated(OrderCreatedEvent event) {
+        try {
+            Payment payment = new Payment(event.getOrderId(), event.getUserId(), event.getAmount());
 
             payment.setPaymentStatus(PaymentStatus.COMPLETED);
 
             Payment savedPayment = paymentService.processPayment(payment);
 
             kafkaProducerService.sendPaymentProcessedEvent(savedPayment);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

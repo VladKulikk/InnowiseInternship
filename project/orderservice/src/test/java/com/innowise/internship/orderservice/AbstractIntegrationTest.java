@@ -16,20 +16,18 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 @AutoConfigureWireMock(port = 0)
 @EmbeddedKafka(
-        partitions = 1,
-        brokerProperties = {
-                "listeners=PLAINTEXT://localhost:9092",
-                "port=9092",
-                "auto.create.topics.enable=true"
-        },
-        topics = {"orders.create", "payments.create"})
+    partitions = 1,
+    brokerProperties = {
+      "listeners=PLAINTEXT://localhost:9092",
+      "port=9092",
+      "auto.create.topics.enable=true"
+    },
+    topics = {"orders.create", "payments.create"})
 public abstract class AbstractIntegrationTest {
 
-  @Container
-  static PostgresTestContainer postgreSQLContainer = PostgresTestContainer.getInstance();
+  @Container static PostgresTestContainer postgreSQLContainer = PostgresTestContainer.getInstance();
 
-  @Container
-  static RedisTestContainer redis = RedisTestContainer.getInstance();
+  @Container static RedisTestContainer redis = RedisTestContainer.getInstance();
 
   @DynamicPropertySource
   static void configureProperties(DynamicPropertyRegistry registry) {
@@ -44,10 +42,10 @@ public abstract class AbstractIntegrationTest {
 
     registry.add("spring.kafka.bootstrap-servers", () -> "localhost:9092");
 
-      registry.add("spring.kafka.consumer.auto-startup", () -> "false");
+    registry.add("spring.kafka.consumer.auto-startup", () -> "false");
 
-      registry.add("spring.kafka.producer.key-serializer", () -> "org.apache.kafka.common.serialization.StringSerializer");
-      registry.add("spring.kafka.producer.value-serializer", () -> "org.springframework.kafka.support.serializer.JsonSerializer");
-      registry.add("spring.kafka.producer.properties.spring.json.add.type.headers", () -> "false");
+    registry.add("spring.kafka.producer.key-serializer", () -> "org.apache.kafka.common.serialization.StringSerializer");
+    registry.add("spring.kafka.producer.value-serializer", () -> "org.springframework.kafka.support.serializer.JsonSerializer");
+    registry.add("spring.kafka.producer.properties.spring.json.add.type.headers", () -> "false");
   }
 }

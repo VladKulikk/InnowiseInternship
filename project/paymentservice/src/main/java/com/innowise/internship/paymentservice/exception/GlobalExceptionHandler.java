@@ -13,7 +13,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidPaymentStatusException.class)
     public ResponseEntity<Object> handleInvalidPaymentStatusException(InvalidPaymentStatusException ex, HttpServletRequest request) {
-
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
@@ -21,12 +20,12 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI()
         );
+
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(PaymentDataCorruptException.class)
     public ResponseEntity<Object> handlePaymentDataCorruptException(PaymentDataCorruptException ex, HttpServletRequest request) {
-
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -34,12 +33,12 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI()
         );
+
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ExternalServiceException.class)
     public ResponseEntity<Object> handleExternalServiceException(ExternalServiceException ex, HttpServletRequest request) {
-
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.SERVICE_UNAVAILABLE.value(),
@@ -47,6 +46,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI()
         );
+
         return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
     }
 }

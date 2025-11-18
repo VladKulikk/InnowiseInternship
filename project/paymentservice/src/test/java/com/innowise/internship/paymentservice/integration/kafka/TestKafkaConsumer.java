@@ -12,10 +12,7 @@ public class TestKafkaConsumer {
 
     private final BlockingQueue<PaymentProcessedEvent> queue = new LinkedBlockingQueue<>();
 
-    @KafkaListener(
-            topics = "payments.create",
-            groupId = "test-producer-group"
-    )
+    @KafkaListener(topics = "payments.create", groupId = "test-producer-group", containerFactory = "testKafkaListenerContainerFactory")
     public void receive(PaymentProcessedEvent event) {
         queue.add(event);
     }

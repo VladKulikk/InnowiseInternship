@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -16,12 +17,15 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-import static org.mockito.Mockito.when;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PaymentController.class)
+@TestPropertySource(properties = "mongock.enabled=false")
 public class PaymentControllerIntegrationTest {
 
     @Autowired
@@ -44,7 +48,8 @@ public class PaymentControllerIntegrationTest {
 
         when(paymentService.getPaymentsByOrderId(1L)).thenReturn(List.of(payment));
 
-        mockMvc.perform(get("/api/v1/payments/order/1"))
+        mockMvc
+                .perform(get("/api/v1/payments/order/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()", is(1)))
@@ -58,7 +63,8 @@ public class PaymentControllerIntegrationTest {
 
         when(paymentService.getPaymentsByUserId(100L)).thenReturn(List.of(payment));
 
-        mockMvc.perform(get("/api/v1/payments/user/100"))
+        mockMvc
+                .perform(get("/api/v1/payments/user/100"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()", is(1)))
@@ -72,7 +78,8 @@ public class PaymentControllerIntegrationTest {
 
         when(paymentService.getPaymentsByStatuses(statuses)).thenReturn(List.of(payment));
 
-        mockMvc.perform(get("/api/v1/payments/status").param("statuses", "COMPLETED", "PENDING"))
+        mockMvc
+                .perform(get("/api/v1/payments/status").param("statuses", "COMPLETED", "PENDING"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()", is(1)))
@@ -88,9 +95,11 @@ public class PaymentControllerIntegrationTest {
 
         when(paymentService.getTotalAmountForPeriod(start, end)).thenReturn(total);
 
-        mockMvc.perform(get("/api/v1/payments/stats/sum")
-                    .param("startDate", "2025-01-01T00:00:00Z")
-                    .param("endDate", "2025-01-31T23:59:59Z"))
+        mockMvc
+                .perform(
+                        get("/api/v1/payments/stats/sum")
+                                .param("startDate", "2025-01-01T00:00:00Z")
+                                .param("endDate", "2025-01-31T23:59:59Z"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.totalAmount", is(123.45)));
@@ -101,13 +110,15 @@ public class PaymentControllerIntegrationTest {
         String invalidStatus = "INVALID_STATUS";
 
     when(paymentService.getPaymentsByStatuses(List.of(invalidStatus)))
-        .thenThrow(new InvalidPaymentStatusException("Invalid payment status provided: " + invalidStatus));
+            .thenThrow(
+                    new InvalidPaymentStatusException("Invalid payment status provided: " + invalidStatus));
 
-    mockMvc.perform(get("/api/v1/payments/status").param("statuses", invalidStatus))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.status", is(400)))
-            .andExpect(jsonPath("$.error", is("Bad Request")))
-            .andExpect(jsonPath("$.message", is("Invalid payment status provided: " + invalidStatus)));
+        mockMvc
+                .perform(get("/api/v1/payments/status").param("statuses", invalidStatus))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.error", is("Bad Request")))
+                .andExpect(jsonPath("$.message", is("Invalid payment status provided: " + invalidStatus)));
   }
 }

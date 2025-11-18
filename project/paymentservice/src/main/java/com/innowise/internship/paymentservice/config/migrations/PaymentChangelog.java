@@ -17,20 +17,11 @@ public class PaymentChangelog {
     public void createPaymentIndexes(MongoTemplate mongoTemplate) {
         MongoCollection<Document> collection = mongoTemplate.getCollection(COLLECTION_NAME);
 
-        collection.createIndex(
-                new Document("order_id", 1),
-                new IndexOptions().name("idx_order_id")
-        );
+        collection.createIndex(new Document("order_id", 1), new IndexOptions().name("idx_order_id"));
 
-        collection.createIndex(
-                new Document("user_id", 1),
-                new IndexOptions().name("idx_user_id")
-        );
+        collection.createIndex(new Document("user_id", 1), new IndexOptions().name("idx_user_id"));
 
-        collection.createIndex(
-                new Document("status", 1),
-                new IndexOptions().name("idx_status")
-        );
+        collection.createIndex(new Document("status", 1), new IndexOptions().name("idx_status"));
     }
 
     @RollbackExecution

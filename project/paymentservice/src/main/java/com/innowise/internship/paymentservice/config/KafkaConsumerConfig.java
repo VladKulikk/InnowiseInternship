@@ -20,11 +20,11 @@ import java.util.Map;
 @Configuration
 public class KafkaConsumerConfig {
 
+    @Value("${spring.kafka.consumer.group-id:payment-service-group}")
+    public String groupId;
+
     @Value("${spring.kafka.bootstrap-servers:kafka-broker:9092}")
     private String bootstrapServers;
-
-    @Value("${spring.kafka.consumer.group-id:payment-service-group}")
-    private String groupId;
 
     @Bean
     public ConsumerFactory<String, OrderCreatedEvent> consumerFactory() {

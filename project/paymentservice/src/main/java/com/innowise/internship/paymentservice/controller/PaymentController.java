@@ -40,7 +40,7 @@ public class PaymentController {
     }
 
     @GetMapping("/stats/sum")
-    public ResponseEntity<?> getPaymentsSumForPeriod(@RequestParam("startDate") Instant startDate,  @RequestParam("endDate") Instant endDate) {
+    public ResponseEntity<?> getPaymentsSumForPeriod(@RequestParam("startDate") Instant startDate, @RequestParam("endDate") Instant endDate) {
         BigDecimal total = paymentService.getTotalAmountForPeriod(startDate, endDate);
         return ResponseEntity.ok(java.util.Collections.singletonMap("totalAmount", total));
     }

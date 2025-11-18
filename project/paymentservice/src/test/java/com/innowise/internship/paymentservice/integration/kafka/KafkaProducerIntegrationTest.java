@@ -10,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.TestPropertySource;
-
 
 import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
@@ -19,14 +17,8 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Import({TestConsumerConfiguration.class, TestcontainersConfig.class})
-@TestPropertySource(properties = {
-        "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer",
-        "spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer",
-        "spring.kafka.consumer.properties.spring.json.trusted.packages=*",
-        "spring.kafka.consumer.auto-offset-reset=earliest"
-})
-public class KafkaProducerIntegrationTest {
+@Import({TestConsumerConfiguration.class})
+public class KafkaProducerIntegrationTest extends TestcontainersConfig {
 
     @Autowired
     private KafkaProducerService kafkaProducerService;

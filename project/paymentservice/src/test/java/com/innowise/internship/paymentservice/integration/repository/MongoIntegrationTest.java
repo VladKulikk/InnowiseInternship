@@ -1,5 +1,6 @@
 package com.innowise.internship.paymentservice.integration.repository;
 
+import com.innowise.internship.paymentservice.TestcontainersConfig;
 import com.innowise.internship.paymentservice.dto.PaymentStatsDto;
 import com.innowise.internship.paymentservice.model.Payment;
 import com.innowise.internship.paymentservice.model.PaymentStatus;
@@ -7,9 +8,7 @@ import com.innowise.internship.paymentservice.repository.PaymentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.context.annotation.Import;
-import com.innowise.internship.paymentservice.TestcontainersConfig;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -18,15 +17,13 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataMongoTest
-@Import(TestcontainersConfig.class)
-public class MongoIntegrationTest {
+@SpringBootTest
+public class MongoIntegrationTest extends TestcontainersConfig {
 
+    private final Instant now = Instant.now();
     @Autowired
     private PaymentRepository paymentRepository;
-
     private Payment p1, p2, p3;
-    private final Instant now =  Instant.now();
 
     @BeforeEach
     void setup(){

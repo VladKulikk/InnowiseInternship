@@ -1,24 +1,30 @@
 package com.innowise.internship.paymentservice;
 
+import com.containers.KafkaTestContainer;
+import com.containers.MongoTestContainer;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.kafka.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration(proxyBeanMethods = false)
+@SpringBootTest
 public class TestcontainersConfig {
+    @Container
+    static KafkaContainer kafkaContainer = KafkaTestContainer.getInstance();
 
-	@Bean
-	@ServiceConnection
-	KafkaContainer kafkaContainer() {
-		return new KafkaContainer(DockerImageName.parse("apache/kafka:3.7.0"));
-	}
+    @Container
+    static MongoDBContainer mongoContainer = MongoTestContainer.getInstance();
 
-	@Bean
-	@ServiceConnection
-	MongoDBContainer mongoDbContainer() {
-		return new MongoDBContainer(DockerImageName.parse("mongo:6.0"));
-	}
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add(
+                "spring.kafka.bootstrap-servers",
+                () -> "localhost:" + kafkaContainer.getFirstMappedPort().toString());
+
+        registry.add("spring.data.mongodb.uri", () -> mongoContainer.getReplicaSetUrl("paymentsdb"));
+    }
 }

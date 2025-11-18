@@ -9,16 +9,16 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface PaymentMapper {
 
-  List<PaymentStatus> toStatusList(List<String> statuses);
+    List<PaymentStatus> toStatusList(List<String> statuses);
 
-  default PaymentStatus stringToStatus(String status) {
-    if (status == null) {
-      return null;
+    default PaymentStatus stringToStatus(String status) {
+        if (status == null) {
+            return null;
+        }
+        try {
+            return PaymentStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidPaymentStatusException("Invalid payment status provided: " + status);
+        }
     }
-    try {
-      return PaymentStatus.valueOf(status.toUpperCase());
-    } catch (IllegalArgumentException e) {
-      throw new InvalidPaymentStatusException("Invalid payment status provided: " + status);
-    }
-  }
 }

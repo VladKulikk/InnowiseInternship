@@ -9,7 +9,6 @@ import com.innowise.internship.paymentservice.service.PaymentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -22,8 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@Import(TestcontainersConfig.class)
-public class KafkaConsumerIntegrationTest{
+public class KafkaConsumerIntegrationTest extends TestcontainersConfig {
 
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
@@ -35,7 +33,7 @@ public class KafkaConsumerIntegrationTest{
     private KafkaProducerService kafkaProducerService;
 
     @Test
-    void testHandleOrderCreated(){
+    void testHandleOrderCreated() {
         OrderCreatedEvent event = new OrderCreatedEvent(100L, 200L, new BigDecimal("99.99"));
 
         Payment processedPayment = new Payment(100L, 200L, new BigDecimal("99.99"));
@@ -46,9 +44,12 @@ public class KafkaConsumerIntegrationTest{
 
         kafkaTemplate.send("orders.create", String.valueOf(event.getOrderId()), event);
 
-        await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> {
-            verify(paymentService).processPayment(any(Payment.class));
-            verify(kafkaProducerService).sendPaymentProcessedEvent(processedPayment);
-        });
+        await()
+                .atMost(Duration.ofSeconds(10))
+                .untilAsserted(
+                        () -> {
+                            verify(paymentService).processPayment(any(Payment.class));
+                            verify(kafkaProducerService).sendPaymentProcessedEvent(processedPayment);
+                        });
     }
 }

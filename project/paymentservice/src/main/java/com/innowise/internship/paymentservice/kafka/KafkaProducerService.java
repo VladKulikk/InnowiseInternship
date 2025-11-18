@@ -14,12 +14,13 @@ public class KafkaProducerService {
     private final KafkaTemplate<String, PaymentProcessedEvent> kafkaTemplate;
 
     public void sendPaymentProcessedEvent(Payment payment) {
-        PaymentProcessedEvent paymentProcessedEvent = new PaymentProcessedEvent(
-                payment.getId(),
-                payment.getOrderId(),
-                payment.getPaymentStatus().toString()
-        );
+        PaymentProcessedEvent paymentProcessedEvent =
+                new PaymentProcessedEvent(
+                        payment.getId(), payment.getOrderId(), payment.getPaymentStatus().toString());
 
-        kafkaTemplate.send(KafkaTopicConfig.PAYMENT_CREATE_TOPIC, String.valueOf(paymentProcessedEvent.getOrderId()), paymentProcessedEvent);
+        kafkaTemplate.send(
+                KafkaTopicConfig.PAYMENT_CREATE_TOPIC,
+                String.valueOf(paymentProcessedEvent.getOrderId()),
+                paymentProcessedEvent);
     }
 }

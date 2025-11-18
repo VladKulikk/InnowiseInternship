@@ -24,7 +24,10 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 @RestClientTest(RandomNumberClient.class)
 @Import(RestTemplateConfig.class)
-@TestPropertySource(properties = "random.number.api.url=https://www.random.org/integers/?num=1&min=1&max=100&col=1&base=10&format=plain&rnd=new")
+@TestPropertySource(properties = {
+        "random.number.api.url=https://www.random.org/integers/?num=1&min=1&max=100&col=1&base=10&format=plain&rnd=new",
+        "mongock.enabled=false"
+})
 public class RandomNumberClientTest {
 
     @Autowired

@@ -19,55 +19,56 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 
-  private final PaymentRepository paymentRepository;
-  private final RandomNumberClient randomNumberClient;
-  private final PaymentMapper paymentMapper;
+    private final PaymentRepository paymentRepository;
+    private final RandomNumberClient randomNumberClient;
+    private final PaymentMapper paymentMapper;
 
-  @Override
-  public Payment processPayment(Payment payment) {
-    try {
-      int number = randomNumberClient.getRandomNumber();
-      boolean isSuccess = (number % 2 == 0);
+    @Override
+    public Payment processPayment(Payment payment) {
+        try {
+            int number = randomNumberClient.getRandomNumber();
 
-      if (isSuccess) {
-        payment.setPaymentStatus(PaymentStatus.COMPLETED);
-      } else {
-        payment.setPaymentStatus(PaymentStatus.FAILED);
-      }
-    } catch (ExternalServiceException e) {
-      payment.setPaymentStatus(PaymentStatus.FAILED);
-    }
-    return paymentRepository.save(payment);
-  }
+            boolean isSuccess = (number % 2 == 0);
 
-  @Override
-  public List<Payment> getPaymentsByOrderId(Long orderId) {
-    return paymentRepository.findByOrderId(orderId);
-  }
-
-  @Override
-  public List<Payment> getPaymentsByUserId(Long userId) {
-    return paymentRepository.findByUserId(userId);
-  }
-
-  @Override
-  public List<Payment> getPaymentsByStatuses(List<String> statuses) {
-    List<PaymentStatus> statusesList = paymentMapper.toStatusList(statuses);
-    return paymentRepository.findByPaymentStatusIn(statusesList);
-  }
-
-  @Override
-  public BigDecimal getTotalAmountForPeriod(Instant startDate, Instant endDate) {
-    PaymentStatsDto stats = paymentRepository.getPaymentSumByDateRange(startDate, endDate);
-
-    if (stats == null) {
-      return BigDecimal.ZERO;
+            if (isSuccess) {
+                payment.setPaymentStatus(PaymentStatus.COMPLETED);
+            } else {
+                payment.setPaymentStatus(PaymentStatus.FAILED);
+            }
+        } catch (ExternalServiceException e) {
+            payment.setPaymentStatus(PaymentStatus.FAILED);
+        }
+        return paymentRepository.save(payment);
     }
 
-    if (stats.getTotalAmount() == null) {
-      throw new PaymentDataCorruptException("Payment data is corrupt. Aggregation returned null");
+    @Override
+    public List<Payment> getPaymentsByOrderId(Long orderId) {
+        return paymentRepository.findByOrderId(orderId);
     }
 
-    return stats.getTotalAmount();
-  }
+    @Override
+    public List<Payment> getPaymentsByUserId(Long userId) {
+        return paymentRepository.findByUserId(userId);
+    }
+
+    @Override
+    public List<Payment> getPaymentsByStatuses(List<String> statuses) {
+        List<PaymentStatus> statusesList = paymentMapper.toStatusList(statuses);
+        return paymentRepository.findByPaymentStatusIn(statusesList);
+    }
+
+    @Override
+    public BigDecimal getTotalAmountForPeriod(Instant startDate, Instant endDate) {
+        PaymentStatsDto stats = paymentRepository.getPaymentSumByDateRange(startDate, endDate);
+
+        if (stats == null) {
+            return BigDecimal.ZERO;
+        }
+
+        if (stats.getTotalAmount() == null) {
+            throw new PaymentDataCorruptException("Payment data is corrupt. Aggregation returned null");
+        }
+
+        return stats.getTotalAmount();
+    }
 }
