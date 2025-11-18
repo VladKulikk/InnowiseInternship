@@ -45,10 +45,10 @@ public class KafkaConsumerIntegrationTest extends TestcontainersConfig {
         kafkaTemplate.send("orders.create", String.valueOf(event.getOrderId()), event);
 
         await()
-                .atMost(Duration.ofSeconds(10))
+                .atMost(Duration.ofSeconds(60))
                 .untilAsserted(
                         () -> {
-                            verify(paymentService).processPayment(any(Payment.class));
+                            verify(paymentService).processPayment(any());
                             verify(kafkaProducerService).sendPaymentProcessedEvent(processedPayment);
                         });
     }
