@@ -23,7 +23,7 @@ public class TestcontainersConfig {
     static void configureProperties(DynamicPropertyRegistry registry) {
         registry.add(
                 "spring.kafka.bootstrap-servers",
-                () -> "localhost:" + kafkaContainer.getFirstMappedPort().toString());
+                kafkaContainer::getBootstrapServers);
 
         registry.add("spring.data.mongodb.uri", () -> mongoContainer.getReplicaSetUrl("paymentsdb"));
     }
