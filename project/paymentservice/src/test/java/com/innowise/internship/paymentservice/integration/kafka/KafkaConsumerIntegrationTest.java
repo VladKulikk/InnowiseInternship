@@ -2,18 +2,15 @@ package com.innowise.internship.paymentservice.integration.kafka;
 
 import com.innowise.internship.paymentservice.TestcontainersConfig;
 import com.innowise.internship.paymentservice.dto.OrderCreatedEvent;
-import com.innowise.internship.paymentservice.kafka.KafkaConsumerService;
 import com.innowise.internship.paymentservice.kafka.KafkaProducerService;
 import com.innowise.internship.paymentservice.model.Payment;
 import com.innowise.internship.paymentservice.model.PaymentStatus;
 import com.innowise.internship.paymentservice.service.PaymentService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -29,20 +26,11 @@ public class KafkaConsumerIntegrationTest extends TestcontainersConfig {
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Autowired
-    private KafkaConsumerService kafkaConsumerService;
-
     @MockitoBean
     private PaymentService paymentService;
 
     @MockitoBean
     private KafkaProducerService kafkaProducerService;
-
-    @BeforeEach
-    void injectMocks() {
-        ReflectionTestUtils.setField(kafkaConsumerService, "paymentService", paymentService);
-        ReflectionTestUtils.setField(kafkaConsumerService, "kafkaProducerService", kafkaProducerService);
-    }
 
     @Test
     void testHandleOrderCreated() {
@@ -52,7 +40,7 @@ public class KafkaConsumerIntegrationTest extends TestcontainersConfig {
         processedPayment.setId("mongo-id-123");
         processedPayment.setPaymentStatus(PaymentStatus.COMPLETED);
 
-        when(paymentService.processPayment(any(Payment.class))).thenReturn(processedPayment);
+        when(paymentService.processPayment(any())).thenReturn(processedPayment);
 
         kafkaTemplate.send("orders.create", String.valueOf(event.getOrderId()), event);
 
