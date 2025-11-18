@@ -15,6 +15,7 @@ import org.testcontainers.kafka.KafkaContainer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @TestConfiguration
 @EnableKafka
@@ -32,7 +33,7 @@ public class TestConsumerConfiguration {
 
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "test-producer-group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "test-producer-group-" + UUID.randomUUID());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
