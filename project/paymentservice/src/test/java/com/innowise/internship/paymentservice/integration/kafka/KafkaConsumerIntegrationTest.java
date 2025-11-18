@@ -5,7 +5,7 @@ import com.innowise.internship.paymentservice.dto.OrderCreatedEvent;
 import com.innowise.internship.paymentservice.kafka.KafkaProducerService;
 import com.innowise.internship.paymentservice.model.Payment;
 import com.innowise.internship.paymentservice.model.PaymentStatus;
-import com.innowise.internship.paymentservice.service.PaymentService;
+import com.innowise.internship.paymentservice.service.PaymentServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +27,7 @@ public class KafkaConsumerIntegrationTest extends TestcontainersConfig {
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     @MockitoBean
-    private PaymentService paymentService;
+    private PaymentServiceImpl paymentService;
 
     @MockitoBean
     private KafkaProducerService kafkaProducerService;
