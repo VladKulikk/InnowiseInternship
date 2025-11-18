@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.kafka.consumer.group-id=payment-service-group-${random.uuid}")
 public class KafkaConsumerIntegrationTest extends TestcontainersConfig {
 
     @Autowired
