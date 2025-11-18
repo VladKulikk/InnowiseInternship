@@ -10,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
-import org.springframework.kafka.test.utils.ContainerTestUtils;
 
 import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
@@ -28,16 +26,17 @@ public class KafkaProducerIntegrationTest extends TestcontainersConfig {
     @Autowired
     private TestKafkaConsumer testKafkaConsumer;
 
-    @Autowired
-    private KafkaListenerEndpointRegistry registry;
+//    @Autowired
+//    private KafkaListenerEndpointRegistry registry;
+//
+//        registry.getListenerContainers().forEach(container ->
+//            ContainerTestUtils.waitForAssignment(container, 1)
+//            );
 
     @BeforeEach
     public void setup() {
         testKafkaConsumer.getQueue().clear();
 
-        registry.getListenerContainers().forEach(container ->
-                ContainerTestUtils.waitForAssignment(container, 1)
-        );
     }
 
     @Test

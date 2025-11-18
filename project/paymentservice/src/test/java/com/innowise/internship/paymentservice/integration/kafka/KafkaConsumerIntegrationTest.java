@@ -9,9 +9,7 @@ import com.innowise.internship.paymentservice.service.PaymentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
@@ -28,9 +26,6 @@ public class KafkaConsumerIntegrationTest extends TestcontainersConfig {
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Autowired
-    private KafkaListenerEndpointRegistry registry;
-
     @MockitoBean
     private PaymentService paymentService;
 
@@ -40,9 +35,6 @@ public class KafkaConsumerIntegrationTest extends TestcontainersConfig {
     @Test
     void testHandleOrderCreated() {
 
-        registry.getListenerContainers().forEach(container -> {
-            ContainerTestUtils.waitForAssignment(container, 1);
-        });
         System.out.println("testHandleOrderCreated");
         OrderCreatedEvent event = new OrderCreatedEvent(100L, 200L, new BigDecimal("99.99"));
 
