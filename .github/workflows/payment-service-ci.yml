@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - feature/paymentservice
     paths:
       - 'project/paymentservice/**'
   pull_request:
