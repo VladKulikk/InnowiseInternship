@@ -14,6 +14,7 @@ public class RandomNumberClient {
 
     public int getRandomNumber() {
         try {
+            //@Value return some random hash, not requested URL
             String randomApiUrl = "https://www.random.org/integers/?num=1&min=1&max=100&col=1&base=10&format=plain&rnd=new";
 
             String result = restTemplate.getForObject(randomApiUrl, String.class);
