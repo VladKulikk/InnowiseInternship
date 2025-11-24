@@ -1,6 +1,8 @@
 package com.innowise.internship.paymentservice.mapper;
 
+import com.innowise.internship.paymentservice.dto.PaymentResponseDto;
 import com.innowise.internship.paymentservice.exception.InvalidPaymentStatusException;
+import com.innowise.internship.paymentservice.model.Payment;
 import com.innowise.internship.paymentservice.model.PaymentStatus;
 import org.mapstruct.Mapper;
 
@@ -8,6 +10,8 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface PaymentMapper {
+
+    List<PaymentResponseDto> toPaymentResponseDtoList(List<Payment> payments);
 
     List<PaymentStatus> toStatusList(List<String> statuses);
 

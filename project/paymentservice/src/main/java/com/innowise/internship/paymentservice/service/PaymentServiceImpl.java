@@ -1,14 +1,15 @@
 package com.innowise.internship.paymentservice.service;
 
 import com.innowise.internship.paymentservice.client.RandomNumberClient;
+import com.innowise.internship.paymentservice.dto.PaymentResponseDto;
 import com.innowise.internship.paymentservice.dto.PaymentStatsDto;
 import com.innowise.internship.paymentservice.exception.ExternalServiceException;
-import com.innowise.internship.paymentservice.exception.PaymentDataCorruptException;
 import com.innowise.internship.paymentservice.mapper.PaymentMapper;
 import com.innowise.internship.paymentservice.model.Payment;
 import com.innowise.internship.paymentservice.model.PaymentStatus;
 import com.innowise.internship.paymentservice.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.Decimal128;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -42,33 +43,26 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public List<Payment> getPaymentsByOrderId(Long orderId) {
-        return paymentRepository.findByOrderId(orderId);
+    public List<PaymentResponseDto> getPaymentsByOrderId(Long orderId) {
+        return paymentMapper.toPaymentResponseDtoList(paymentRepository.findByOrderId(orderId));
     }
 
     @Override
-    public List<Payment> getPaymentsByUserId(Long userId) {
-        return paymentRepository.findByUserId(userId);
+    public List<PaymentResponseDto> getPaymentsByUserId(Long userId) {
+        return paymentMapper.toPaymentResponseDtoList(paymentRepository.findByUserId(userId));
     }
 
     @Override
-    public List<Payment> getPaymentsByStatuses(List<String> statuses) {
+    public List<PaymentResponseDto> getPaymentsByStatuses(List<String> statuses) {
         List<PaymentStatus> statusesList = paymentMapper.toStatusList(statuses);
-        return paymentRepository.findByPaymentStatusIn(statusesList);
+        return paymentMapper.toPaymentResponseDtoList(paymentRepository.findByPaymentStatusIn(statusesList));
     }
 
     @Override
-    public BigDecimal getTotalAmountForPeriod(Instant startDate, Instant endDate) {
-        PaymentStatsDto stats = paymentRepository.getPaymentSumByDateRange(startDate, endDate);
+    public PaymentStatsDto getTotalAmountForPeriod(Instant startDate, Instant endDate) {
+        Decimal128 result = paymentRepository.getPaymentSumByDateRange(startDate, endDate);
 
-        if (stats == null) {
-            return BigDecimal.ZERO;
-        }
-
-        if (stats.getTotalAmount() == null) {
-            throw new PaymentDataCorruptException("Payment data is corrupt. Aggregation returned null");
-        }
-
-        return stats.getTotalAmount();
+        BigDecimal totalAmount = result != null ? result.bigDecimalValue() : BigDecimal.ZERO;
+        return new PaymentStatsDto(totalAmount);
     }
 }

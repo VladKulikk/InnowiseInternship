@@ -1,10 +1,10 @@
 package com.innowise.internship.paymentservice.integration.repository;
 
 import com.innowise.internship.paymentservice.TestcontainersConfig;
-import com.innowise.internship.paymentservice.dto.PaymentStatsDto;
 import com.innowise.internship.paymentservice.model.Payment;
 import com.innowise.internship.paymentservice.model.PaymentStatus;
 import com.innowise.internship.paymentservice.repository.PaymentRepository;
+import org.bson.types.Decimal128;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,10 +73,10 @@ public class MongoIntegrationTest extends TestcontainersConfig {
         Instant startTime = now.minus(1, ChronoUnit.HOURS);
         Instant endTime = now.plus(1, ChronoUnit.HOURS);
 
-        PaymentStatsDto stats = paymentRepository.getPaymentSumByDateRange(startTime, endTime);
+        Decimal128 result = paymentRepository.getPaymentSumByDateRange(startTime, endTime);
 
-        assertThat(stats).isNotNull();
-        assertThat(stats.getTotalAmount()).isEqualByComparingTo("50.00");
+        assertThat(result).isNotNull();
+        assertThat(result.bigDecimalValue()).isEqualByComparingTo("50.00");
     }
 
     @Test
@@ -84,8 +84,8 @@ public class MongoIntegrationTest extends TestcontainersConfig {
         Instant startDate = now.minus(10, ChronoUnit.DAYS);
         Instant endDate = now.minus(9, ChronoUnit.DAYS);
 
-        PaymentStatsDto stats = paymentRepository.getPaymentSumByDateRange(startDate, endDate);
+        Decimal128 result = paymentRepository.getPaymentSumByDateRange(startDate, endDate);
 
-        assertThat(stats).isNull();
+        assertThat(result).isNull();
     }
 }

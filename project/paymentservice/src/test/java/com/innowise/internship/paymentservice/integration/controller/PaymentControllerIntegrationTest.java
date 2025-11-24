@@ -1,8 +1,9 @@
 package com.innowise.internship.paymentservice.integration.controller;
 
 import com.innowise.internship.paymentservice.controller.PaymentController;
+import com.innowise.internship.paymentservice.dto.PaymentResponseDto;
+import com.innowise.internship.paymentservice.dto.PaymentStatsDto;
 import com.innowise.internship.paymentservice.exception.InvalidPaymentStatusException;
-import com.innowise.internship.paymentservice.model.Payment;
 import com.innowise.internship.paymentservice.model.PaymentStatus;
 import com.innowise.internship.paymentservice.service.PaymentService;
 import org.junit.jupiter.api.Test;
@@ -34,19 +35,22 @@ public class PaymentControllerIntegrationTest {
     @MockitoBean
     private PaymentService paymentService;
 
-    private Payment createTestPayment() {
-        Payment payment = new Payment(1L, 100L, new BigDecimal("50.00"));
-        payment.setId("test-mongo-id-123");
-        payment.setPaymentStatus(PaymentStatus.COMPLETED);
-        payment.setTimestamp(Instant.parse("2025-11-15T10:00:00Z"));
-        return payment;
+    private PaymentResponseDto createTestPaymentDto() {
+        PaymentResponseDto paymentResponseDto = new PaymentResponseDto();
+        paymentResponseDto.setId("test-mongo-id-123");
+        paymentResponseDto.setOrderId(1L);
+        paymentResponseDto.setUserId(100L);
+        paymentResponseDto.setPaymentStatus(PaymentStatus.COMPLETED);
+        paymentResponseDto.setPaymentAmount(new BigDecimal("50.00"));
+        paymentResponseDto.setTimestamp(Instant.now());
+        return paymentResponseDto;
     }
 
     @Test
     void testGetPaymentsByOrderId() throws Exception {
-        Payment payment = createTestPayment();
+        PaymentResponseDto paymentResponseDto = createTestPaymentDto();
 
-        when(paymentService.getPaymentsByOrderId(1L)).thenReturn(List.of(payment));
+        when(paymentService.getPaymentsByOrderId(1L)).thenReturn(List.of(paymentResponseDto));
 
         mockMvc
                 .perform(get("/api/v1/payments/order/1"))
@@ -59,9 +63,9 @@ public class PaymentControllerIntegrationTest {
 
     @Test
     void testGetPaymentsByUserId() throws Exception {
-        Payment payment = createTestPayment();
+        PaymentResponseDto paymentResponseDto = createTestPaymentDto();
 
-        when(paymentService.getPaymentsByUserId(100L)).thenReturn(List.of(payment));
+        when(paymentService.getPaymentsByUserId(100L)).thenReturn(List.of(paymentResponseDto));
 
         mockMvc
                 .perform(get("/api/v1/payments/user/100"))
@@ -74,9 +78,11 @@ public class PaymentControllerIntegrationTest {
     @Test
     void testGetPaymentsByStatuses() throws Exception {
         List<String> statuses = List.of("COMPLETED", "PENDING");
-        Payment payment = createTestPayment();
+        PaymentResponseDto paymentResponseDto = createTestPaymentDto();
 
-        when(paymentService.getPaymentsByStatuses(statuses)).thenReturn(List.of(payment));
+        paymentResponseDto.setPaymentStatus(PaymentStatus.COMPLETED);
+
+        when(paymentService.getPaymentsByStatuses(statuses)).thenReturn(List.of(paymentResponseDto));
 
         mockMvc
                 .perform(get("/api/v1/payments/status").param("statuses", "COMPLETED", "PENDING"))
@@ -91,7 +97,7 @@ public class PaymentControllerIntegrationTest {
         Instant start = Instant.parse("2025-01-01T00:00:00Z");
         Instant end = Instant.parse("2025-01-31T23:59:59Z");
 
-        BigDecimal total = new BigDecimal("123.45");
+        PaymentStatsDto total = new PaymentStatsDto(new BigDecimal("123.45"));
 
         when(paymentService.getTotalAmountForPeriod(start, end)).thenReturn(total);
 

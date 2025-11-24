@@ -21,7 +21,7 @@ public class PaymentChangelog {
 
         collection.createIndex(new Document("user_id", 1), new IndexOptions().name("idx_user_id"));
 
-        collection.createIndex(new Document("status", 1), new IndexOptions().name("idx_status"));
+        collection.createIndex(new Document("paymentStatus", 1), new IndexOptions().name("idx_status"));
     }
 
     @RollbackExecution

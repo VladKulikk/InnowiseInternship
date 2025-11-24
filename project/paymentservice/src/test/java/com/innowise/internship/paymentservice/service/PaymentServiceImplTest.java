@@ -1,14 +1,15 @@
 package com.innowise.internship.paymentservice.service;
 
 import com.innowise.internship.paymentservice.client.RandomNumberClient;
+import com.innowise.internship.paymentservice.dto.PaymentResponseDto;
 import com.innowise.internship.paymentservice.dto.PaymentStatsDto;
 import com.innowise.internship.paymentservice.exception.ExternalServiceException;
 import com.innowise.internship.paymentservice.exception.InvalidPaymentStatusException;
-import com.innowise.internship.paymentservice.exception.PaymentDataCorruptException;
 import com.innowise.internship.paymentservice.mapper.PaymentMapper;
 import com.innowise.internship.paymentservice.model.Payment;
 import com.innowise.internship.paymentservice.model.PaymentStatus;
 import com.innowise.internship.paymentservice.repository.PaymentRepository;
+import org.bson.types.Decimal128;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -100,45 +101,57 @@ public class PaymentServiceImplTest {
   }
 
     @Test
-    void getPaymentsByOrderId_shouldReturnList(){
-        List<Payment> mockList = List.of(new Payment(1L, 100L, BigDecimal.TEN));
+    void getPaymentsByOrderId_shouldReturnDtoList(){
+        List<Payment> mockEntityList = List.of(new Payment(1L, 100L, BigDecimal.TEN));
 
-        when(paymentRepository.findByOrderId(1L)).thenReturn(mockList);
+        PaymentResponseDto dto = new PaymentResponseDto();
+        List<PaymentResponseDto> mockDtoList = List.of(dto);
 
-        List<Payment> result = paymentService.getPaymentsByOrderId(1L);
+        when(paymentRepository.findByOrderId(1L)).thenReturn(mockEntityList);
+        when(paymentMapper.toPaymentResponseDtoList(mockEntityList)).thenReturn(mockDtoList);
+
+        List<PaymentResponseDto> result = paymentService.getPaymentsByOrderId(1L);
 
         verify(paymentRepository, times(1)).findByOrderId(1L);
+        verify(paymentMapper, times(1)).toPaymentResponseDtoList(mockEntityList);
+
         assertThat(result).isNotNull();
         assertThat(result.size()).isEqualTo(1);
-        assertThat(result).isEqualTo(mockList);
+        assertThat(result).isEqualTo(mockDtoList);
     }
 
     @Test
     void getPaymentsByUserId_shouldReturnList(){
-        List<Payment> mockList = List.of(new Payment(1L, 100L, BigDecimal.TEN));
+        List<Payment> mockEntityList = List.of(new Payment(1L, 100L, BigDecimal.TEN));
+        List<PaymentResponseDto> mockDtoList = List.of(new PaymentResponseDto());
 
-        when(paymentRepository.findByUserId(100L)).thenReturn(mockList);
+        when(paymentRepository.findByUserId(100L)).thenReturn(mockEntityList);
+        when(paymentMapper.toPaymentResponseDtoList(mockEntityList)).thenReturn(mockDtoList);
 
-        List<Payment> result = paymentService.getPaymentsByUserId(100L);
+        List<PaymentResponseDto> result = paymentService.getPaymentsByUserId(100L);
 
         verify(paymentRepository, times(1)).findByUserId(100L);
-        assertThat(result).isEqualTo(mockList);
+        verify(paymentMapper, times(1)).toPaymentResponseDtoList(mockEntityList);
+        assertThat(result).isEqualTo(mockDtoList);
     }
 
     @Test
     void getPaymentsByStatuses_shouldCallMapperAndRepo(){
         List<String> statusStrings = List.of("COMPLETED", "FAILED");
         List<PaymentStatus> statusEnum = List.of(PaymentStatus.COMPLETED, PaymentStatus.FAILED);
-        List<Payment> mockList = List.of(new Payment(1L, 100L, BigDecimal.TEN));
+        List<Payment> mockEntityList = List.of(new Payment(1L, 100L, BigDecimal.TEN));
+        List<PaymentResponseDto> mockDtoList = List.of(new PaymentResponseDto());
 
         when(paymentMapper.toStatusList(statusStrings)).thenReturn(statusEnum);
-        when(paymentRepository.findByPaymentStatusIn(statusEnum)).thenReturn(mockList);
+        when(paymentRepository.findByPaymentStatusIn(statusEnum)).thenReturn(mockEntityList);
+        when(paymentMapper.toPaymentResponseDtoList(mockEntityList)).thenReturn(mockDtoList);
 
-        List<Payment> result = paymentService.getPaymentsByStatuses(statusStrings);
+        List<PaymentResponseDto> result = paymentService.getPaymentsByStatuses(statusStrings);
 
         verify(paymentMapper, times(1)).toStatusList(statusStrings);
         verify(paymentRepository, times(1)).findByPaymentStatusIn(statusEnum);
-        assertThat(result).isEqualTo(mockList);
+        verify(paymentMapper, times(1)).toPaymentResponseDtoList(mockEntityList);
+        assertThat(result).isEqualTo(mockDtoList);
     }
 
     @Test
@@ -154,43 +167,28 @@ public class PaymentServiceImplTest {
     }
 
     @Test
-    void getTotalAmountForPeriod_shouldReturnTotal(){
+    void getTotalAmountForPeriod_shouldReturnDtoTotal(){
         Instant startDate = Instant.now();
         Instant endDate = Instant.now().plusSeconds(60);
-        PaymentStatsDto mockDto = new PaymentStatsDto();
-        mockDto.setTotalAmount(new BigDecimal("99.99"));
+        Decimal128 mockAmount = new Decimal128(new BigDecimal("99.99"));
 
-        when(paymentRepository.getPaymentSumByDateRange(startDate, endDate)).thenReturn(mockDto);
+        when(paymentRepository.getPaymentSumByDateRange(startDate, endDate)).thenReturn(mockAmount);
 
-        BigDecimal result = paymentService.getTotalAmountForPeriod(startDate, endDate);
+        PaymentStatsDto result = paymentService.getTotalAmountForPeriod(startDate, endDate);
 
         verify(paymentRepository, times(1)).getPaymentSumByDateRange(startDate, endDate);
-        assertThat(result).isEqualTo(new BigDecimal("99.99"));
+        assertThat(result.getTotalAmount()).isEqualTo(new BigDecimal("99.99"));
     }
 
     @Test
-    void getTotalAmountForPeriod_shouldReturnZeroWhenDtoNull(){
+    void getTotalAmountForPeriod_shouldReturnZeroWhenDecimalNull(){
         Instant startDate = Instant.now();
         Instant endDate = Instant.now().plusSeconds(60);
 
         when(paymentRepository.getPaymentSumByDateRange(startDate, endDate)).thenReturn(null);
 
-        BigDecimal result = paymentService.getTotalAmountForPeriod(startDate, endDate);
+        PaymentStatsDto result = paymentService.getTotalAmountForPeriod(startDate, endDate);
 
-        assertThat(result).isEqualTo(BigDecimal.ZERO);
-    }
-
-    @Test
-    void getTotalAmountForPeriod_shouldThrowException_whenAmountNull(){
-        Instant startDate = Instant.now();
-        Instant endDate = Instant.now().plusSeconds(60);
-        PaymentStatsDto mockDtoWithNullAmount = new PaymentStatsDto();
-        mockDtoWithNullAmount.setTotalAmount(null);
-
-        when(paymentRepository.getPaymentSumByDateRange(startDate, endDate)).thenReturn(mockDtoWithNullAmount);
-
-        assertThatThrownBy(() -> paymentService.getTotalAmountForPeriod(startDate, endDate))
-                .isInstanceOf(PaymentDataCorruptException.class)
-                .hasMessageContaining("Payment data is corrupt. Aggregation returned null");
+        assertThat(result.getTotalAmount()).isEqualTo(BigDecimal.ZERO);
     }
 }

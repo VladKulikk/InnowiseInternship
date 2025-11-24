@@ -1,6 +1,7 @@
 package com.innowise.internship.paymentservice.controller;
 
-import com.innowise.internship.paymentservice.model.Payment;
+import com.innowise.internship.paymentservice.dto.PaymentResponseDto;
+import com.innowise.internship.paymentservice.dto.PaymentStatsDto;
 import com.innowise.internship.paymentservice.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -22,26 +22,26 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<List<Payment>> getPaymentsByOrderId(@PathVariable Long orderId) {
-        List<Payment> payments = paymentService.getPaymentsByOrderId(orderId);
+    public ResponseEntity<List<PaymentResponseDto>> getPaymentsByOrderId(@PathVariable Long orderId) {
+        List<PaymentResponseDto> payments = paymentService.getPaymentsByOrderId(orderId);
         return ResponseEntity.ok(payments);
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Payment>> getPaymentsByUserId(@PathVariable Long userId) {
-        List<Payment> payments = paymentService.getPaymentsByUserId(userId);
+    public ResponseEntity<List<PaymentResponseDto>> getPaymentsByUserId(@PathVariable Long userId) {
+        List<PaymentResponseDto> payments = paymentService.getPaymentsByUserId(userId);
         return ResponseEntity.ok(payments);
     }
 
     @GetMapping("/status")
-    public ResponseEntity<List<Payment>> getPaymentsByStatuses(@RequestParam("statuses") List<String> statuses) {
-        List<Payment> payments = paymentService.getPaymentsByStatuses(statuses);
+    public ResponseEntity<List<PaymentResponseDto>> getPaymentsByStatuses(@RequestParam("statuses") List<String> statuses) {
+        List<PaymentResponseDto> payments = paymentService.getPaymentsByStatuses(statuses);
         return ResponseEntity.ok(payments);
     }
 
     @GetMapping("/stats/sum")
-    public ResponseEntity<?> getPaymentsSumForPeriod(@RequestParam("startDate") Instant startDate, @RequestParam("endDate") Instant endDate) {
-        BigDecimal total = paymentService.getTotalAmountForPeriod(startDate, endDate);
-        return ResponseEntity.ok(java.util.Collections.singletonMap("totalAmount", total));
+    public ResponseEntity<PaymentStatsDto> getPaymentsSumForPeriod(@RequestParam("startDate") Instant startDate, @RequestParam("endDate") Instant endDate) {
+        PaymentStatsDto statsDto = paymentService.getTotalAmountForPeriod(startDate, endDate);
+        return ResponseEntity.ok(statsDto);
     }
 }

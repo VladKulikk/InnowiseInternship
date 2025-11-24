@@ -1,6 +1,9 @@
 package com.innowise.internship.paymentservice.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -9,8 +12,11 @@ import org.springframework.data.mongodb.core.mapping.FieldType;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-@Data
 @Document(collection = "payments")
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
 public class Payment {
 
     @Id

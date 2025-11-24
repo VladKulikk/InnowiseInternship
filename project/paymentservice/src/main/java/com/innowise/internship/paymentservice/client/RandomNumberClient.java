@@ -1,5 +1,6 @@
 package com.innowise.internship.paymentservice.client;
 
+import com.innowise.internship.paymentservice.config.ApiConfig;
 import com.innowise.internship.paymentservice.exception.ExternalServiceException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,12 +11,11 @@ import org.springframework.web.client.RestTemplate;
 public class RandomNumberClient {
 
     private final RestTemplate restTemplate;
-
+    private final ApiConfig apiConfig;
 
     public int getRandomNumber() {
         try {
-            //@Value return some random hash, not requested URL
-            String randomApiUrl = "https://www.random.org/integers/?num=1&min=1&max=100&col=1&base=10&format=plain&rnd=new";
+            String randomApiUrl = apiConfig.getRandomNumberUrl();
 
             String result = restTemplate.getForObject(randomApiUrl, String.class);
 
