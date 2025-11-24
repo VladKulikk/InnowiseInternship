@@ -116,6 +116,7 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_BROKER_ID=1
 
+
   mongo:
     image: mongo:latest
     container_name: mongo_db
