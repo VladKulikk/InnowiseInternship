@@ -38,7 +38,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn clean verify sonar:sonar -Dsonar.projectKey=VladKulikk_InnowiseInternship-userservice -Dsonar.organization=vladkulikk -Dsonar.host.url=https://sonarcloud.io
+        run: mvn clean verify sonar:sonar -Dsonar.projectKey=VladKulikk_InnowiseInternship -Dsonar.organization=vladkulikk -Dsonar.host.url=https://sonarcloud.io
 
 
   build-and-push-docker:
