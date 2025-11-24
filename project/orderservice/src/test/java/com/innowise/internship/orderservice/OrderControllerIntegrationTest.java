@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.innowise.internship.orderservice.dto.CreateOrderDto;
 import com.innowise.internship.orderservice.dto.OrderItemDto;
+import com.innowise.internship.orderservice.kafka.KafkaProducerService;
 import com.innowise.internship.orderservice.model.Item;
 import com.innowise.internship.orderservice.model.Order;
 import com.innowise.internship.orderservice.model.OrderStatus;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -22,6 +24,11 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
@@ -44,6 +51,12 @@ public class OrderControllerIntegrationTest extends AbstractIntegrationTest{
 
     @Autowired
     private WireMockServer wireMockServer;
+
+    @MockitoBean
+    KafkaProducerService kafkaProducerService;
+
+    @MockitoBean
+    private com.innowise.internship.orderservice.kafka.KafkaConsumerService kafkaConsumerService;
 
     @BeforeEach
     public void setup() {
@@ -79,6 +92,9 @@ public class OrderControllerIntegrationTest extends AbstractIntegrationTest{
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.status").value("PENDING"))
                 .andExpect(jsonPath("$.user.id").value(123));
+
+        verify(kafkaProducerService, timeout(5000).times(1))
+                .sendOrderCreatedEvent(anyLong(),anyLong(),any(BigDecimal.class));
     }
 
     @Test
@@ -99,6 +115,9 @@ public class OrderControllerIntegrationTest extends AbstractIntegrationTest{
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createOrderDto)))
                 .andExpect(status().isNotFound());
+
+        verify(kafkaProducerService, never())
+                .sendOrderCreatedEvent(anyLong(), anyLong(), any(BigDecimal.class));
     }
 
     @Test

@@ -24,5 +24,10 @@ spring:
               predicates:
                 - Path=/api/v1/orders/**, /api/v1/items/**
 
+            - id: paymentservice-route
+              uri: http://paymentservice:8080
+              predicates:
+                - Path=/api/v1/payments/**
+
 service-urls:
   auth-service: http://authenticationservice:8080/api/v1/auth
