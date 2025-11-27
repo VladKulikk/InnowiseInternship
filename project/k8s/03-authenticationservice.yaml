@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authenticationservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authenticationservice
+  template:
+    metadata:
+      labels:
+        app: authenticationservice
+    spec:
+      containers:
+        - name: authenticationservice
+          image: project-authenticationservice:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 10
+
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres-db:5432/authdb
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "admin"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "123456"
+            - name: USER_SERVICE_URL
+              value: http://userservice:80/api/v1
+            - name: APP_JWT_ACCESS_SECRET
+              value: "8q65#j^_\\H1!kk\\&Vl`=g'QdyrSDsZh|Zkcd/£d3F7{3"
+            - name: APP_JWT_REFRESH_SECRET
+              value: "}!1RXF`D6N9_[spZJA_T�|xfWqalr#>5>$HjwMu44lG"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authenticationservice
+spec:
+  selector:
+    app: authenticationservice
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
